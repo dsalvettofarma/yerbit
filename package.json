@@ -1,0 +1,21 @@
+{
+  "name": "dashboard-plataformas",
+  "version": "1.0.0",
+  "description": "Dashboard de plataformas para administración centralizada",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "dependencies": {
+    "googleapis": "^128.0.0",
+    "google-auth-library": "^9.4.1"
+  },
+  "devDependencies": {
+    "vercel": "^32.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Principal</title>
+    
+    <!-- Estilos del Dashboard -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- CDN de Tabler.io Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    
+    <!-- Fuente de Google Fonts (Opcional, para mejor estética) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Módulo JS del Layout -->
+    <script type="module" src="dashboard-layout.js"></script>
+</head>
+<body>
+
+    <!-- Contenedor principal donde se inyectará el layout y se mostrará el contenido -->
+    <div class="dashboard-container">
+        <!-- El Header y la Sidebar se inyectan por JS -->
+        <main id="mainContent">
+            <div id="module-content">
+                <h1>Dashboard Principal</h1>
+                <p>Bienvenido al panel de control. Desde aquí puedes obtener una vista general de toda la actividad reciente en tu cuenta.</p>
+                <!-- Aquí iría el contenido específico de esta página, como widgets, gráficos, etc. -->
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+/* Variables CSS para el inspector, basadas en las variables globales del dashboard */
+:root {
+  /* Mapeo de variables del Inspector a variables del Dashboard */
+  --color-surface: var(--bg-panel);
+  --color-on-surface: var(--text-primary);
+  --color-on-surface-variant: var(--text-secondary);
+  --color-outline: var(--border);
+  --color-outline-variant: var(--border);
+  
+  --color-surface-container: var(--bg-panel);
+  --color-surface-container-hover: var(--border);
+  
+  --color-primary: var(--accent-color);
+  --color-on-primary: var(--text-primary);
+  
+  --color-secondary: var(--accent-color);
+  --color-on-secondary: var(--text-primary);
+  --color-secondary-variant: var(--accent-hover);
+  
+  --color-tertiary: var(--green-neon);
+  --color-on-tertiary: var(--bg-dark);
+  
+  --border-radius-small: 4px;
+  --border-radius-medium: 8px;
+  --border-radius-large: 12px;
+  
+  --box-shadow-medium: 0 2px 8px rgba(0, 0, 0, 0.2);
+  
+  --font-size-md: 0.875rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.125rem;
+  --font-size-xxl: 1.25rem;
+  --font-size-xxxl: 1.5rem;
+}

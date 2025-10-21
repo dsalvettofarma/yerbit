@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "functions": {
+    "api/gateway.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "api/auth.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    }
+  ],
+  "env": {
+    "GOOGLE_PROJECT_ID": "@google-project-id",
+    "GOOGLE_CLIENT_EMAIL": "@google-client-email",
+    "GOOGLE_PRIVATE_KEY": "@google-private-key"
+  },
+  "build": {
+    "env": {
+      "GOOGLE_PROJECT_ID": "@google-project-id",
+      "GOOGLE_CLIENT_EMAIL": "@google-client-email",
+      "GOOGLE_PRIVATE_KEY": "@google-private-key"
+    }
+  }
+}

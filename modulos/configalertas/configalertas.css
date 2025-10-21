@@ -1,0 +1,538 @@
+/*
+ * Hoja de Estilos para la Configuración de Alertas
+ * /public/configAlertas/configuracionAlertas.css
+ * Descripción: Estilos para la interfaz de gestión de reglas de alertas,
+ * incluyendo layout, tarjetas de reglas, modales y formularios.
+ * Utiliza variables globales de base.css para consistencia visual.
+ */
+
+/* --- 1. Contenedor Principal y Layout --- */
+.config-alertas-root {
+  padding: 2rem;
+  margin: 0 auto;
+  max-width: 1600px; /* Ancho máximo para la sección */
+}
+
+#lista-reglas-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem; /* Espacio entre la sección de activas e inactivas */
+}
+
+.section-container {
+  background-color: var(--color-surface);
+  padding: 1.5rem 2rem;
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow-medium);
+}
+
+/* --- 2. Encabezado, Títulos y Barra de Herramientas --- */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.header-section-title {
+  font-size: var(--font-size-xxxl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-on-background);
+  margin: 0;
+}
+
+.section-title {
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-semibold);
+  margin-top: 0;
+  color: var(--color-on-surface);
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-outline);
+  padding-bottom: 0.75rem;
+}
+
+.toolbar-section {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* --- 3. Tarjetas de Reglas --- */
+.reglas-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+.regla-item-card {
+  background-color: var(--color-surface-container);
+  padding: 1.5rem;
+  border-radius: var(--border-radius-medium);
+  box-shadow: var(--box-shadow-small);
+  border-left: 6px solid var(--color-primary);
+  transition: box-shadow var(--transition-duration), transform var(--transition-duration);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.regla-item-card:hover {
+    box-shadow: var(--box-shadow-large);
+    transform: translateY(-4px);
+}
+
+/* Estilo para tarjetas de reglas inactivas */
+.regla-item-card.inactiva {
+    border-left-color: var(--color-on-surface-variant);
+}
+.regla-item-card.inactiva .notas-regla {
+    color: var(--color-on-surface-variant);
+}
+
+
+.regla-item-card .notas-regla {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-on-surface);
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+}
+
+.regla-item-card .asunto-regla {
+  font-size: var(--font-size-sm);
+  color: var(--color-on-surface-variant);
+  margin-bottom: 1rem;
+  min-height: 2.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.regla-item-card .info-regla {
+  font-size: var(--font-size-sm);
+  color: var(--color-on-surface-variant);
+  margin-bottom: 1rem;
+}
+.regla-item-card .info-regla strong {
+    color: var(--color-on-surface);
+    font-weight: var(--font-weight-medium);
+}
+.regla-item-card .estado-regla {
+    font-weight: var(--font-weight-bold);
+}
+.regla-item-card .estado-regla.activa-si {
+    color: var(--color-secondary);
+}
+.regla-item-card .estado-regla.activa-no {
+    color: var(--color-error);
+}
+
+.regla-acciones {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-outline);
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+/* --- 4. Botones --- */
+.btn {
+  padding: 0.7rem 1.4rem;
+  border: none;
+  border-radius: var(--border-radius-medium);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  text-decoration: none;
+  transition: background-color var(--transition-duration), box-shadow var(--transition-duration);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.btn-primary:hover:not([disabled]) {
+  background-color: var(--color-primary-variant);
+  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-on-secondary);
+}
+.btn-secondary:hover:not([disabled]) {
+  background-color: var(--color-secondary-variant);
+}
+
+.btn-danger {
+  background-color: var(--color-error);
+  color: var(--color-on-error);
+}
+.btn-danger:hover:not([disabled]) {
+  background-color: #9e3648; /* Darken error color */
+}
+
+.btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: var(--font-size-xs);
+}
+
+.btn-info {
+    background: none;
+    border: none;
+    color: var(--color-secondary);
+    font-size: var(--font-size-xl);
+    padding: 0.25rem;
+    margin-left: 0.5em;
+    cursor: pointer;
+}
+.btn-info:hover {
+    color: var(--color-secondary-variant);
+}
+
+.btn-ayuda-simple {
+    background-color: var(--color-surface-container-hover);
+    color: var(--color-on-surface-variant);
+    padding: 0.6rem 1.2rem;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--border-radius-medium);
+    text-decoration: none;
+}
+.btn-ayuda-simple:hover {
+    background-color: var(--color-outline);
+    color: var(--color-on-surface);
+}
+
+/* --- 5. Modales y Overlays --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+  z-index: 10000;
+}
+.modal-overlay:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.modal-dialog {
+  background-color: var(--color-surface);
+  padding: 1.5rem 2rem;
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow-large);
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
+.modal-overlay:not(.hidden) .modal-dialog {
+    transform: scale(1);
+}
+
+.modal-dialog.modal-sm {
+    max-width: 500px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-outline);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+.modal-header h3 {
+  margin: 0;
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-semibold);
+}
+.modal-close-button {
+  background: none;
+  border: none;
+  font-size: var(--font-size-xxl);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.modal-close-button:hover{
+    color: var(--color-error);
+}
+
+.modal-body {
+    overflow-y: auto;
+    padding-right: 10px;
+    flex-grow: 1;
+}
+
+.modal-body-content {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-base);
+}
+.modal-body-content p { margin-bottom: 0.8em; }
+.modal-body-content strong { font-weight: var(--font-weight-semibold); color: var(--color-on-surface); }
+.modal-body-content code {
+    font-size: var(--font-size-xs);
+    background-color: var(--color-surface-container-hover);
+    padding: 0.2em 0.4em;
+    border-radius: var(--border-radius-small);
+}
+.modal-body-content ul { padding-left: 20px; list-style-type: disc; }
+
+
+.modal-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-outline);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.modal-confirmacion {
+    max-width: 450px;
+    text-align: center;
+}
+#modalConfirmacionMsg {
+    margin-bottom: 2rem;
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-base);
+}
+#modalConfirmacion { z-index: 11000; } /* Asegura que esté sobre otros modales */
+
+
+/* --- 6. Formularios y Entradas --- */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+.form-group label {
+  display: block;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 0.5rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-on-surface-variant);
+}
+.form-group input[type="text"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--border-radius-medium);
+  font-size: var(--font-size-md);
+  box-sizing: border-box;
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+  transition: border-color var(--transition-duration), box-shadow var(--transition-duration);
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+.form-group input[type="text"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3);
+    outline: none;
+}
+.form-group .help-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: var(--font-size-xs);
+    color: var(--color-on-surface-variant);
+}
+
+.input-with-button {
+    display: flex;
+    align-items: center;
+}
+.input-with-button select {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+.input-with-button .btn-info {
+    border: 1px solid var(--color-outline);
+    border-left: none;
+    border-radius: 0 var(--border-radius-medium) var(--border-radius-medium) 0;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+/* Campos Multi-Condicional */
+#multiCondicionalInputs .multi-cond-section {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--border-radius-medium);
+}
+#multiCondicionalInputs label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-secondary);
+}
+.keyword-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+.keyword-input-group input {
+    flex-grow: 1;
+    font-size: var(--font-size-sm);
+}
+
+.keywords-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    min-height: 24px;
+}
+.keyword-tag {
+    background-color: var(--color-secondary-variant);
+    color: var(--color-on-primary);
+    padding: 0.3rem 0.75rem;
+    border-radius: 1rem;
+    font-size: var(--font-size-xs);
+    display: inline-flex;
+    align-items: center;
+    font-weight: var(--font-weight-medium);
+}
+.keyword-tag .remove-keyword {
+    margin-left: 0.5rem;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--color-on-primary);
+    opacity: 0.7;
+}
+.keyword-tag .remove-keyword:hover {
+    opacity: 1;
+}
+
+.subtle-divider {
+    border: none;
+    border-top: 1px dashed var(--color-outline-variant);
+    margin: 1rem 0;
+}
+
+
+/* --- 7. Mensajes de Estado y Notificaciones --- */
+.hidden {
+  display: none !important;
+}
+
+.status-message {
+  color: var(--color-on-surface-variant);
+  padding: 1.5rem;
+  text-align: center;
+  font-style: italic;
+  font-size: var(--font-size-md);
+  grid-column: 1 / -1; /* Ocupa todo el ancho del grid si es hijo directo */
+  width: 100%;
+}
+.status-message.error-message {
+  color: var(--color-error);
+  font-weight: var(--font-weight-medium);
+  font-style: normal;
+}
+
+.alerta-global-msg {
+    position: fixed;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%);
+    min-width: 320px;
+    max-width: 600px;
+    padding: 1rem 1.75rem;
+    border-radius: var(--border-radius-medium);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-on-primary);
+    box-shadow: var(--box-shadow-large);
+    text-align: center;
+    z-index: 12000;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.alerta-global-msg:not(.hidden) {
+    transform: translateX(-50%) translateY(0);
+}
+.alerta-global-msg.error { background-color: var(--color-error-container); color: var(--color-on-error-container); }
+.alerta-global-msg.success { background-color: var(--color-success-container); color: var(--color-on-success-container); }
+
+
+/* --- 8. Overlay de Carga Global --- */
+/* --- Overlay de carga SOLO sobre main-content y blur (igual que inspector) */
+#main-content.loading-blur {
+  filter: blur(2px) grayscale(0.15) brightness(0.97);
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.2s;
+}
+
+#main-content { position: relative; }
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.15);
+  backdrop-filter: blur(1px);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.loading-overlay .spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #FFF;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+  margin-bottom: 1rem;
+}
+@keyframes rotation {
+  to { transform: rotate(360deg); }
+}
+
+.loading-overlay .loading-text {
+  color: var(--color-on-surface);
+  font-size: 1rem;
+  font-weight: 500;
+  background: rgba(30,30,30,0.9);
+  padding: 0.6em 1.5em;
+  border-radius: var(--border-radius-small);
+  box-shadow: var(--box-shadow-small);
+}
+
+#loadingOverlayTimer {
+  font-variant-numeric: tabular-nums;
+  margin-left: 0.5em;
+  color: var(--color-secondary);
+}

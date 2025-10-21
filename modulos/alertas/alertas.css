@@ -1,0 +1,619 @@
+/* public/monitorAlertas/monitorAlertas.css */
+
+.monitor-alertas-root {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1.2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  height: 100vh;
+  overflow: visible; /* Evita scroll interno vertical */
+}
+header.header-section-title{
+  background:none;
+}
+.header-section-title {
+  font-size: var(--font-size-xxl, 2.4rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-on-background);
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.monitor-alertas-root .section-container {
+  background-color: var(--color-surface);
+  padding: 1.2rem 1.5rem;
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow-medium);
+}
+
+.monitor-alertas-root .section-title {
+  font-size: var(--font-size-xl, 2rem);
+  font-weight: var(--font-weight-semibold, 600);
+  margin-bottom: 1rem;
+  color: var(--color-on-surface);
+}
+
+.monitor-alertas-root .section-title-alertas {
+  color: var(--color-error); /* Rojo para destacar "alertas" */
+  
+}
+.monitor-alertas-root .section-title-historial {
+  color: var(--color-secondary); /* Azul/otro color para historial */
+}
+
+.monitor-alertas-root .alertas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.monitor-alertas-root .alerta-item {
+  background-color: var(--color-surface-container);
+  padding: 0.7rem 1.2rem;
+  border-radius: var(--border-radius-medium);
+  border-left: 5px solid var(--color-error);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out, max-height 0.5s ease-out;
+  max-height: 140px;
+  overflow: hidden;
+}
+.monitor-alertas-root .alerta-item p {
+  margin: 0.15rem 0;
+  font-size: var(--font-size-lg, 1.6rem);
+}
+.monitor-alertas-root .alerta-item .alerta-timestamp {
+  font-size: var(--font-size-md, 1.2rem);
+  color: var(--color-on-surface-variant);
+}
+.monitor-alertas-root .alerta-item .alerta-asunto {
+  font-weight: 500;
+}
+.monitor-alertas-root .alerta-item .alerta-detalle-link {
+  font-size: var(--font-size-md, 1.2rem);
+  color: var(--color-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.monitor-alertas-root .alerta-item .alerta-detalle-link:hover {
+  color: var(--color-secondary-variant);
+}
+
+.monitor-alertas-root .status-message {
+  color: var(--color-on-surface-variant);
+  padding: 0.7rem;
+  text-align: center;
+  font-style: italic;
+  font-size: var(--font-size-xl, 2rem);
+}
+.monitor-alertas-root .status-message.error-message {
+  color: var(--color-error);
+  font-weight: 500;
+}
+.monitor-alertas-root .hidden {
+  display: none !important;
+}
+
+.monitor-alertas-root .section-divider {
+  border: none;
+  border-top: 1px solid var(--color-outline);
+  margin: 1rem 0; /* Ajusta el margen vertical de la línea */
+}
+
+.monitor-alertas-root .historial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem; /* Espacio antes de la tabla */
+}
+
+.monitor-alertas-root .sheet-button {
+  background-color: var(--color-tertiary);
+  color: var(--color-on-tertiary);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--border-radius-medium);
+  text-decoration: none;
+  font-size: var(--font-size-lg, 1.6rem);
+  font-weight: var(--font-weight-medium, 500);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: background-color var(--transition-duration);
+}
+.monitor-alertas-root .sheet-button:hover {
+  background-color: var(--color-tertiary); /* Podrías usar una variable -variant */
+  filter: brightness(0.95);
+  color: var(--color-on-tertiary); /* Asegurar que el color del texto no cambie en hover */
+}
+.monitor-alertas-root .sheet-button i {
+  font-size: 1em; /* Ajustar tamaño del ícono si es necesario */
+}
+
+.monitor-alertas-root .table-responsive-container {
+  overflow-x: auto; /* Scroll horizontal para la tabla */
+  width: 100%;
+}
+
+.monitor-alertas-root .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-surface-container);
+  border-radius: var(--border-radius-medium);
+  overflow: hidden;
+  table-layout: fixed;
+}
+
+.monitor-alertas-root .data-table th,
+.monitor-alertas-root .data-table td {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-outline);
+  font-size: var(--font-size-lg, 1.6rem);
+  line-height: var(--line-height-base);
+}
+
+.monitor-alertas-root .data-table th:last-child,
+.monitor-alertas-root .data-table td:last-child {
+    border-right: none;
+}
+/* --- CORRECCIÓN 2: Definición de anchos de columna --- */
+.monitor-alertas-root .data-table .col-index {
+  width: 6%;
+  text-align: center;
+  white-space: nowrap;
+}
+.monitor-alertas-root .data-table .col-timestamp {
+  width: 20%; /* Aumentado para la fecha y hora */
+  white-space: nowrap;
+}
+
+.monitor-alertas-root .data-table .col-asunto {
+  /* width: 35%; */ /* Reducido para dar espacio a otras columnas */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.monitor-alertas-root .data-table .col-condicion {
+  /* width: 12%; */
+  white-space: nowrap;
+}
+.monitor-alertas-root .data-table .col-revisado {
+  width: 8%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.monitor-alertas-root .data-table td:last-child {
+    /* Podrías añadir text-align: right; o center; si es una columna de acciones */
+text-align: right;
+}
+
+
+.monitor-alertas-root .data-table thead tr {
+  background-color: var(--color-surface-container-hover);
+  color: var(--color-on-surface);
+  font-size: var(--font-size-md, 1.2rem);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: 0.05em;
+}
+
+.monitor-alertas-root .data-table tbody tr:hover {
+  background-color: var(--color-surface-container-hover);
+}
+
+.monitor-alertas-root .data-table .col-number {
+  width: 40px;
+  text-align: center;
+}
+
+/* Estilos para estado visual en la tabla (ejemplos) */
+.monitor-alertas-root .data-table .estado-procesado {
+  color: var(--color-secondary); /* Verde o azul para éxito */
+  font-weight: 500;
+}
+.monitor-alertas-root .data-table .estado-error {
+  color: var(--color-error); /* Rojo para error */
+  font-weight: 500;
+}
+.monitor-alertas-root .data-table .revisado-si {
+  color: var(--color-success-container); /* Usando variables de base.css */
+  font-weight: var(--font-weight-medium);
+}
+.monitor-alertas-root .data-table .revisado-no {
+  color: var(--color-warning-container); /* Usando variables de base.css */
+  font-weight: var(--font-weight-medium);
+}
+
+/* Iconos de FontAwesome (asegúrate que FA esté cargado globalmente en index.html) */
+/* No es necesario cargarlo de nuevo aquí */
+
+.monitor-alertas-root .alertas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem; /* Espacio entre tarjetas de alerta */
+}
+
+.monitor-alertas-root .alerta-item {
+  background-color: var(--color-surface-container);
+  padding: 0.7rem 1.2rem; /* Ajustar padding */
+  border-radius: var(--border-radius-medium);
+  border-left: 5px solid var(--color-error); /* Borde izquierdo rojo más grueso */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+  display: flex; /* Para alinear contenido y botón */
+  justify-content: space-between;
+  align-items: center;
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out, max-height 0.5s ease-out; /* Para animación de salida */
+  max-height: 140px; /* Altura inicial para animación de colapso */
+  overflow: hidden;
+}
+
+.monitor-alertas-root .alerta-item.alerta-desvaneciendo.alerta-oculta {
+  opacity: 0;
+  transform: scale(0.95);
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: -1px; /* Para evitar saltos con bordes/márgenes */
+  border-width: 0; /* Ocultar bordes durante la animación */
+}
+
+
+.monitor-alertas-root .alerta-contenido {
+  flex-grow: 1;
+  min-width: 0; 
+}
+
+.monitor-alertas-root .alerta-asunto-display {
+  font-size: var(--font-size-lg, 1.6rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-on-surface);
+  margin-bottom: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.monitor-alertas-root .alerta-fecha-display {
+  font-size: var(--font-size-md, 1.2rem);
+  color: var(--color-on-surface-variant);
+}
+
+.monitor-alertas-root .alerta-acciones {
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.monitor-alertas-root .btn-marcar-revisado {
+  background-color: var(--color-primary); /* Un color que no sea el rojo de la alerta */
+  color: var(--color-on-primary);
+  border: none;
+  padding: 0.6rem 2.5rem;
+  font-size: var(--font-size-lg, 1.6rem);
+  border-radius: var(--border-radius-small);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.monitor-alertas-root .btn-marcar-revisado:hover {
+  background-color: var(--color-primary-variant);
+}
+.monitor-alertas-root .btn-marcar-revisado i {
+  font-size: 1em; /* Icono un poco más pequeño que el texto */
+}
+.monitor-alertas-root .btn-marcar-revisado:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+
+.monitor-alertas-root .revisado-texto {
+  font-size: var(--font-size-lg, 1.6rem);
+  color: var(--color-secondary); /* Verde o azul para indicar "Revisado" */
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Estilos para el Modal de Detalle de Alerta */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.65); /* Semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; /* Encima de otros contenidos */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s;
+}
+
+.modal-overlay:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.modal-dialog {
+  background-color: var(--color-surface, #fff); /* Usar variable de tema o blanco */
+  padding: 1.2rem 1.5rem;
+  border-radius: var(--border-radius-large, 8px);
+  box-shadow: var(--box-shadow-xlarge, 0 8px 24px rgba(0,0,0,0.15));
+  width: 90%;
+  max-width: 700px; /* Ancho máximo del modal */
+  max-height: 75vh; /* Altura máxima, permite scroll si es más alto */
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.97);
+  transition: transform 0.3s ease-in-out;
+}
+
+.modal-overlay:not(.hidden) .modal-dialog {
+    transform: scale(1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-outline, #eee);
+  padding-bottom: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: var(--font-size-xl, 2rem);
+  font-weight: 500;
+  color: var(--color-primary, #333);
+}
+
+.modal-close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-on-surface-variant, #777);
+  cursor: pointer;
+  padding: 0.15rem;
+}
+.modal-close-button:hover {
+  color: var(--color-error, #d9534f);
+}
+
+.modal-body-content {
+  overflow-y: auto; /* Habilita scroll si el contenido es muy largo */
+  white-space: pre-wrap; /* Conserva saltos de línea y espacios del email */
+  font-family: 'Menlo', 'Monaco', 'Consolas', "Courier New", monospace; /* Mejor para texto crudo */
+  font-size: var(--font-size-lg, 1.6rem); /* Ligeramente más pequeño */
+  line-height: 1.5;
+  color: var(--color-on-surface, #333);
+  margin-bottom: 1rem; /* Espacio si hay datos parseados debajo */
+}
+
+.modal-parsed-data {
+    /* Estilos para la sección de datos parseados (Fase 2) */
+    border-top: 1px solid var(--color-outline, #eee);
+    padding-top: 0.7rem;
+    font-size: var(--font-size-md, 1.2rem);
+}
+
+.highlighted-keyword {
+  background-color: rgba(255, 230, 100, 0.7); /* Amarillo claro semitransparente */
+  font-weight: bold;
+  padding: 0.1em 0.2em;
+  border-radius: 3px;
+  /* Para el subrayado con color: */
+  /* border-bottom: 2px solid var(--color-error, red); */ 
+  /* O usar text-decoration si prefieres: */
+  text-decoration: underline;
+  text-decoration-color: var(--color-error, red);
+  text-decoration-thickness: 1.2px; /* Ajusta según necesites */
+}
+
+/*PARSEO DE DATOS PARA MEJOR VISUAL*/
+/* En alertas.css */
+
+/* ... (tus otros estilos del modal) ... */
+
+.texto-destacado-modal {
+  background-color: #FFD700; /* Un amarillo dorado, por ejemplo */
+  color: #333; /* Color de texto oscuro para contraste */
+  font-weight: bold;
+  padding: 0.1em 0.2em;
+  border-radius: 3px;
+}
+.texto-a-ocultar{
+  display: none;
+} 
+
+/* --- NUEVOS ESTILOS PARA LA LEYENDA --- */
+.historial-legend {
+    font-size: var(--font-size-lg, 1.6rem);
+    color: var(--color-on-surface-variant);
+    background-color: var(--color-surface-container);
+    padding: 0.7rem 1rem;
+    border-radius: var(--border-radius-small);
+    margin-bottom: 1rem;
+    border-left: 3px solid var(--color-secondary);
+}
+.historial-legend p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+.estado-tag {
+    font-weight: var(--font-weight-semibold);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    font-size: var(--font-size-lg, 1.6rem);
+}
+.estado-tag.positivo {
+    background-color: var(--color-error-container);
+    color: var(--color-on-error-container);
+}
+.estado-tag.negativo {
+    background-color: var(--color-surface-container-hover);
+    color: var(--color-on-surface-variant);
+}
+.info-icon {
+    color: var(--color-info, #17a2b8);
+    font-size: 1.1em;
+    vertical-align: middle;
+}
+
+/* --- AJUSTES EN LA TABLA --- */
+
+/* Estilo para el ícono de información en la tabla */
+.info-disparo-icon {
+    cursor: help; /* Cambiar cursor para indicar que es informativo */
+    color: var(--color-secondary);
+    font-size: 1.1em; /* Hacerlo un poco más grande */
+    transition: color 0.2s, transform 0.2s;
+}
+.info-disparo-icon:hover {
+    color: var(--color-secondary-variant);
+    transform: scale(1.05);
+}
+/* --- SECCIÓN DE LA TABLA CORREGIDA --- */
+.monitor-alertas-root .table-responsive-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.monitor-alertas-root .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-surface-container);
+  border-radius: var(--border-radius-medium);
+  overflow: hidden;
+  table-layout: fixed;
+}
+
+.monitor-alertas-root .data-table th,
+.monitor-alertas-root .data-table td {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-outline);
+  font-size: var(--font-size-lg, 1.6rem);
+  line-height: var(--line-height-base);
+}
+
+.monitor-alertas-root .data-table .col-index {
+  width: 2%;
+  text-align: center;
+  white-space: nowrap;
+}
+.monitor-alertas-root .data-table .col-razon {
+  text-align: center;
+  white-space: nowrap;
+}
+.monitor-alertas-root .data-table .col-revisado {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.monitor-alertas-root .data-table thead tr {
+  background-color: var(--color-surface-container-hover);
+  color: var(--color-on-surface);
+  font-size: var(--font-size-md, 1.2rem);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: 0.05em;
+}
+
+.monitor-alertas-root .data-table tbody tr:hover {
+  background-color: var(--color-surface-container-hover);
+}
+
+/* --- ESTILOS MEJORADOS PARA ESTADOS EN LA TABLA --- */
+.monitor-alertas-root .data-table .estado-positivo {
+  color: var(--color-error); /* Usa el mismo rojo de las alertas */
+  font-weight: var(--font-weight-semibold); /* Más notorio */
+}
+.monitor-alertas-root .data-table .estado-negativo {
+  color: var(--color-on-surface-variant); /* Color sutil para "Negativo" */
+}
+.monitor-alertas-root .data-table .revisado-si {
+   color: var(--color-success-container); 
+   font-weight: var(--font-weight-medium);
+}
+.monitor-alertas-root .data-table .revisado-no {
+   color: var(--color-warning-container);
+   font-weight: var(--font-weight-medium);
+}
+
+/* Estilo para el ícono de información en la tabla */
+.info-disparo-icon {
+    cursor: help;
+    color: var(--color-secondary);
+    font-size: 1.1em;
+    transition: color 0.2s, transform 0.2s;
+}
+.info-disparo-icon:hover {
+    color: var(--color-secondary-variant);
+    transform: scale(1.05);
+}
+.motivo-alerta-modal {
+    background: var(--color-surface-container-hover, #23272b);
+    color: var(--color-on-surface, #f1f1f1);
+    border-left: 3px solid var(--color-secondary, #40a9ff);
+    padding: 0.7rem 1.2rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: var(--font-size-lg, 1.6rem);
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+}
+.motivo-alerta-modal i {
+    color: var(--color-secondary, #40a9ff);
+    font-size: 1.1em;
+}
+.datos-parseados {
+  background: #1e2329;
+  color: #fff;
+  border-left: 3px solid #41b2ef;
+  padding: 0.7em 1.2em;
+  margin-bottom: 1em;
+  font-size: var(--font-size-lg, 1.6rem);
+  border-radius: 6px;
+}
+.paginado-historial {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.7em;
+  margin-bottom: 1em;
+}
+.paginado-historial button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+.hidden {
+  display: none !important;
+}
+
+/* Elimina scroll vertical del root y del main-content, solo el body/html puede scrollear */
+.monitor-alertas-root, #main-content {
+  overflow-y: visible !important;
+  scrollbar-width: none;
+}
+.monitor-alertas-root::-webkit-scrollbar, #main-content::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,273 @@
+/* === ARQUITECTURA Y VARIABLES === */
+:root {
+  --font-family: "Inter", sans-serif;
+
+  /* Tema Oscuro (Default) */
+  --bg-dark: #1a1a1a;
+  --bg-panel-dark: #252526;
+  --border-dark: #333333;
+  --text-primary-dark: #e0e0e0;
+  --text-secondary-dark: #a0a0a0;
+
+  /* Tema Claro */
+  --bg-light: #f5f5f7;
+  --bg-panel-light: #ffffff;
+  --border-light: #e5e5e5;
+  --text-primary-light: #1d1d1f;
+  --text-secondary-light: #515154;
+
+  /* Acento y otros */
+  --accent-color: #7e7dd9;
+  --accent-hover: #9493e0;
+  --green-neon: #39ff14;
+  --sidebar-width-expanded: 250px;
+  --sidebar-width-collapsed: 70px;
+  --header-height: 60px;
+  --transition-speed: 0.3s;
+}
+
+/* Aplicación de temas */
+body {
+  --bg: var(--bg-dark);
+  --bg-panel: var(--bg-panel-dark);
+  --border: var(--border-dark);
+  --text-primary: var(--text-primary-dark);
+  --text-secondary: var(--text-secondary-dark);
+}
+
+body.light-theme {
+  --bg: var(--bg-light);
+  --bg-panel: var(--bg-panel-light);
+  --border: var(--border-light);
+  --text-primary: var(--text-primary-light);
+  --text-secondary: var(--text-secondary-light);
+}
+
+/* === RESET Y ESTILOS BASE === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg);
+  color: var(--text-primary);
+  transition: background-color var(--transition-speed),
+    color var(--transition-speed);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* === ESTRUCTURA PRINCIPAL CON CSS GRID === */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: var(--sidebar-width-expanded) 1fr;
+  grid-template-rows: var(--header-height) 1fr;
+  grid-template-areas:
+    "header header"
+    "sidebar main";
+  height: 100vh;
+  transition: grid-template-columns var(--transition-speed) ease-in-out;
+  overflow: hidden; /* Evitar scroll innecesario */
+}
+
+.dashboard-container.collapsed {
+  grid-template-columns: var(--sidebar-width-collapsed) 1fr;
+}
+
+/* === HEADER === */
+.header {
+  grid-area: header;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-height);
+  z-index: 1000;
+  transition: background-color var(--transition-speed),
+    border-bottom var(--transition-speed);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-toggle,
+.theme-switch {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-toggle:hover,
+.theme-switch:hover {
+  background-color: var(--border);
+  color: var(--text-primary);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin-left: 15px;
+  color: var(--accent-color);
+}
+
+.logo i {
+  margin-right: 8px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-icon {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+}
+.header-icon:hover {
+  color: var(--text-primary);
+}
+
+/* === SIDEBAR === */
+.sidebar {
+  grid-area: sidebar;
+  background-color: var(--bg-panel);
+  padding-top: 0;
+  overflow-x: hidden;
+  transition: background-color var(--transition-speed);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  width: var(--sidebar-width-expanded);
+  height: calc(100vh - var(--header-height)); /* Ajustar la altura */
+  z-index: 900;
+}
+
+.sidebar-menu {
+  list-style: none;
+  margin-top: 10px;
+}
+
+.menu-item a {
+  display: grid;
+  grid-template-columns: var(--sidebar-width-collapsed) 1fr;
+  align-items: center;
+  padding: 15px 0;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: background-color 0.2s, color 0.2s;
+  position: relative; /* Para el indicador activo absoluto */
+}
+
+.menu-item a:hover {
+  background-color: var(--border);
+  color: var(--text-primary);
+}
+
+.menu-item.active a {
+  color: var(--accent-color);
+  font-weight: 500;
+  background-color: rgba(126, 125, 217, 0.1);
+}
+
+/* Indicador de elemento activo */
+.menu-item.active a:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background-color: var(--accent-color);
+}
+
+.menu-item .icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.menu-item i {
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.menu-item .menu-text {
+  opacity: 1;
+  padding-left: 10px; /* Dar algo de espacio entre el icono y el texto */
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Estilos para la sidebar colapsada */
+.dashboard-container.collapsed .sidebar {
+  width: var(--sidebar-width-collapsed);
+}
+
+.dashboard-container.collapsed .menu-item i {
+  /* El icono ya tiene un ancho fijo por el sistema de grid */
+  text-align: center;
+}
+
+.dashboard-container.collapsed .menu-item .menu-text {
+  opacity: 0;
+  visibility: hidden;
+  width: 0;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+
+.dashboard-container.collapsed .menu-item a {
+  grid-template-columns: var(--sidebar-width-collapsed) 0fr;
+}
+
+/* El indicador active se mantiene igual gracias a la posición absoluta */
+
+/* === MAIN CONTENT === */
+main {
+  grid-area: main;
+  padding: 20px;
+  overflow-y: auto;
+  position: fixed;
+  top: var(--header-height);
+  left: var(--sidebar-width-expanded);
+  right: 0;
+  height: calc(100vh - var(--header-height));
+  transition: left var(--transition-speed) ease-in-out;
+}
+
+.dashboard-container.collapsed main {
+  left: var(--sidebar-width-collapsed);
+}
+
+#mainContent h1 {
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+#mainContent p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
