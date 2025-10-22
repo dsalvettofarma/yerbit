@@ -226,8 +226,11 @@ function _ordenarHeaders(headers, sheetName) {
 // --- Inicialización multipágina clásica ---
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("INSPECTOR: DOMContentLoaded - inicializando módulo inspector");
+    
+    // Esperar un poco para asegurar que el dashboard-layout.js haya terminado
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     try {
-        // El layout ya ha sido cargado por dashboard-layout.js
         console.log("INSPECTOR: Iniciando en el dashboard");
         // Obtener referencias a los elementos del DOM
         selectHoja = document.getElementById('sheet');
@@ -235,6 +238,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnPrecargar = document.getElementById('btnPrecargar');
         btnBuscar = document.getElementById('btnBuscar');
         inputValor = document.getElementById('value-input');
+        
+        // Debug: verificar que los elementos existen
+        console.log("INSPECTOR: Verificando elementos del DOM:", {
+            selectHoja: !!selectHoja,
+            btnRefrescarHojas: !!btnRefrescarHojas,
+            btnPrecargar: !!btnPrecargar,
+            btnBuscar: !!btnBuscar,
+            inputValor: !!inputValor
+        });
         selectColumna = document.getElementById('column');
         selectTipoMatch = document.getElementById('match-select');
         inputFechaDesde = document.getElementById('fecha-desde');
@@ -258,9 +270,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         // Añadir Listeners usando el helper
-        _addManagedEventListener(btnRefrescarHojas, 'click', () => _precargar(true));
-        _addManagedEventListener(btnPrecargar, 'click', () => _precargar(false));
-        _addManagedEventListener(btnBuscar, 'click', _buscar);
+        console.log("INSPECTOR: Agregando event listeners...");
+        _addManagedEventListener(btnRefrescarHojas, 'click', () => {
+            console.log("INSPECTOR: Click en btnRefrescarHojas");
+            _precargar(true);
+        });
+        _addManagedEventListener(btnPrecargar, 'click', () => {
+            console.log("INSPECTOR: Click en btnPrecargar");
+            _precargar(false);
+        });
+        _addManagedEventListener(btnBuscar, 'click', () => {
+            console.log("INSPECTOR: Click en btnBuscar");
+            _buscar();
+        });
         _addManagedEventListener(inputValor, 'keyup', (event) => {
             if (event.key === 'Enter') {
                 _buscar();
@@ -355,23 +377,32 @@ async function _precargar(forzarRefrescoDeHojas = false) {
                 if (overlayTextElement) overlayTextElement.textContent = "Refrescando lista de hojas...";
                 
                  const dataHojas = await _apiRequest('getSheets');
+                console.log("INSPECTOR: Respuesta de getSheets:", dataHojas);
+                
                 if (selectHoja) {
+                    console.log("INSPECTOR: selectHoja encontrado, poblando opciones");
                     selectHoja.innerHTML = '<option value="">-- Selecciona una hoja --</option>';
                     if (dataHojas && dataHojas.sheets && Array.isArray(dataHojas.sheets)) {
+                        console.log("INSPECTOR: Agregando", dataHojas.sheets.length, "hojas al dropdown");
                         dataHojas.sheets.forEach(nombreHoja => {
                             const option = document.createElement('option');
                             option.value = nombreHoja; 
                             option.textContent = nombreHoja;
                             selectHoja.appendChild(option);
+                            console.log("INSPECTOR: Agregada hoja:", nombreHoja);
                         });
                         // Seleccionar la primera hoja real (más a la izquierda)
                         if (selectHoja.options.length > 1) {
                             selectHoja.selectedIndex = 1; // El 0 es "-- Selecciona --", el 1 es la primera hoja real
+                            console.log("INSPECTOR: Seleccionada hoja por defecto:", selectHoja.value);
                         }
                         justLoadedSheets = true; // Flag para saber que esto fue la primera carga
                     } else { 
+                        console.error("INSPECTOR: Formato de respuesta inválido:", dataHojas);
                         throw new Error("No se recibieron nombres de hojas válidos del servidor."); 
                     }
+                } else {
+                    console.error("INSPECTOR: selectHoja es null!");
                 }
             } // Cierre del if (forzarRefrescoDeHojas...)
 
