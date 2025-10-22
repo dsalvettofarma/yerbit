@@ -105,8 +105,8 @@ function createHeaderHTML() {
                     <i class="ti ti-menu-2"></i>
                 </button>
                 <div class="logo">
-                    <i class="ti ti-brand-appgallery"></i>
-                    <span>DashCore</span>
+                    <i class="ti ti-chess"></i>
+                    <span>YERBIT</span>
                 </div>
             </div>
             <div class="header-right">

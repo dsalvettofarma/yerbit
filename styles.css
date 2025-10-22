@@ -144,7 +144,7 @@ a {
 
 .header-icon {
   color: var(--text-secondary);
-  font-size: 1.2rem;
+  font-size: 1.6rem;
 }
 .header-icon:hover {
   color: var(--text-primary);
