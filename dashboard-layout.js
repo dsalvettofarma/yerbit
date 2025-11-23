@@ -22,50 +22,11 @@ const MENU_ITEMS = [
     href: "index.html",
   },
   {
-    id: "analytics",
-    text: "Analíticas",
-    icon: "ti-chart-bar",
-    roles: ["admin", "editor"],
-    href: "pagina2.html",
-  },
-  {
-    id: "reports",
-    text: "Reportes",
-    icon: "ti-file-text",
-    roles: ["admin", "editor"],
-  },
-  {
     id: "inspector",
     text: "Inspector de Pagos",
     icon: "ti-search",
     roles: ["admin", "editor"],
     href: "inspector.html",
-  },
-  {
-    id: "users",
-    text: "Usuarios",
-    icon: "ti-users",
-    roles: ["admin"]
-  },
-  {
-    id: "settings",
-    text: "Configuración",
-    icon: "ti-settings",
-    roles: ["admin", "editor", "viewer"],
-  },
-  {
-    id: "demo-tailwind",
-    text: "Demo Tailwind",
-    icon: "ti-brand-tailwind",
-    roles: ["admin", "editor", "viewer"],
-    href: "demo-modulo.html",
-  },
-  {
-    id: "demo-css",
-    text: "Demo CSS Puro",
-    icon: "ti-brand-css3",
-    roles: ["admin", "editor", "viewer"],
-    href: "demo-css-module.html",
   },
   {
     id: "form-fraudes",
