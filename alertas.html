@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Alertas - Yerbit</title>
+    
+    <!-- 1. Estilos Globales -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- 2. Estilos del Módulo -->
+    <link rel="stylesheet" href="modulos/alertas/alertas.css">
+
+    <!-- 3. Layout Manager -->
+    <script type="module" src="dashboard-layout.js"></script>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <main id="mainContent">
+            <div id="module-content">
+                
+                <!-- Contenido adaptado de modulos/alertas/alertas.html -->
+                <div class="monitor-alertas-root">
+                    <h1 class="header-section-title">Monitor de alertas</h1>
+
+                    <section id="alertas-positivas-container" class="section-container">
+                        <h2 class="section-title section-title-alertas">Alertas que requieren revisión</h2>
+                        <div id="lista-alertas-content" class="alertas-list">
+                            <p id="loading-alertas" class="status-message">Cargando alertas...</p>
+                            <p id="no-alertas" class="status-message hidden">No hay alertas positivas recientes sin revisar.</p>
+                            <p id="error-alertas" class="status-message hidden error-message">Error al cargar las alertas.</p>
+                        </div>
+                    </section>
+
+                    <hr class="section-divider">
+
+                    <section id="registro-historico-container" class="section-container">
+                        <div class="historial-header">
+                            <h2 class="section-title section-title-historial">Historial de alertas disparadas</h2>
+                        </div>
+                        <div class="historial-legend">
+                            <p>
+                                <span class="estado-tag positivo">Positivo</span>: El email coincidió con una regla y requiere atención.
+                                <span class="estado-tag negativo">Negativo</span>: El email fue procesado pero no cumplió las condiciones de ninguna regla positiva.
+                                <i class="ti ti-info-circle info-icon"></i>: Pasa el mouse sobre este ícono para ver por qué se disparó la alerta.
+                            </p>
+                        </div>
+                        <div class="table-responsive-container">
+                            <button id="btn-recargar-historial" class="sheet-button"><i class="ti ti-refresh"></i> Recargar historial</button>
+                            <table id="tabla-historial" class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-index">#</th>
+                                        <th class="col-timestamp">Fecha y hora</th>
+                                        <th class="col-asunto">Asunto</th>
+                                        <th class="col-condicion">Estado</th>
+                                        <th class="col-revisado">Revisado</th>
+                                        <th class="col-razon">Razón de disparo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cuerpo-tabla-historial">
+                                    <tr id="loading-historial-row">
+                                        <td colspan="6" class="status-message text-center">Cargando historial...</td>
+                                    </tr>
+                                    <tr id="no-historial-row" class="hidden">
+                                        <td colspan="6" class="status-message text-center">No hay historial disponible.</td>
+                                    </tr>
+                                    <tr id="error-historial-row" class="hidden">
+                                        <td colspan="6" class="status-message text-center error-message">Error al cargar el historial.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div id="historial-paginado-container"></div>
+                        </div>
+                    </section>
+
+                    <!-- MODAL de detalle de alerta -->
+                    <div id="alertaDetalleModal" class="modal-overlay hidden">
+                        <div class="modal-dialog">
+                            <header class="modal-header">
+                                <h3 id="modalDetalleTitulo">Detalle de la Alerta</h3>
+                                <button id="modalDetalleCerrarBtn" class="modal-close-button" aria-label="Cerrar">
+                                    <i class="ti ti-x"></i>
+                                </button>
+                            </header>
+                            <section id="modalDetalleCuerpo" class="modal-body-content"></section>
+                            <div id="modalDetalleDatosParseados" class="modal-parsed-data" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- 4. Lógica del Módulo -->
+    <script type="module" src="modulos/alertas/alertas.js"></script>
+
+</body>
+</html>

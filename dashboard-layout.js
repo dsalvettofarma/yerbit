@@ -53,6 +53,50 @@ const MENU_ITEMS = [
     icon: "ti-settings",
     roles: ["admin", "editor", "viewer"],
   },
+  {
+    id: "demo-tailwind",
+    text: "Demo Tailwind",
+    icon: "ti-brand-tailwind",
+    roles: ["admin", "editor", "viewer"],
+    href: "demo-modulo.html",
+  },
+  {
+    id: "demo-css",
+    text: "Demo CSS Puro",
+    icon: "ti-brand-css3",
+    roles: ["admin", "editor", "viewer"],
+    href: "demo-css-module.html",
+  },
+  {
+    id: "form-fraudes",
+    text: "Form. Fraudes",
+    icon: "ti-alert-triangle",
+    roles: ["admin", "editor"],
+    href: "form-fraudes.html",
+  },
+  {
+    id: "alertas",
+    text: "Monitor Alertas",
+    icon: "ti-bell",
+    roles: ["admin", "editor", "viewer"],
+    href: "alertas.html",
+  },
+  {
+    id: "config-alertas",
+    text: "Config. Alertas",
+    icon: "ti-settings-automation",
+    roles: ["admin"],
+    href: "config-alertas.html",
+  },
+  // === EJEMPLO DE ESQUELETO BASE ===
+  // Copia y pega este bloque para agregar nuevos módulos
+  {
+    id: "html-base",           // ID único para el módulo (usado internamente)
+    text: "HTML Base",         // Texto que aparece en el menú lateral
+    icon: "ti-template",       // Icono de Tabler Icons (busca en tabler-icons.io)
+    roles: ["admin"],          // Quién puede ver esto: 'admin', 'editor', 'viewer'
+    href: "html-base.html",    // El nombre EXACTO de tu archivo HTML
+  },
 ];
 
 /**

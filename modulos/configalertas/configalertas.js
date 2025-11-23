@@ -1,6 +1,6 @@
 // ES Module para Configuración de Alertas
 // import { requireSession } from '../shared/authService.js'; // Temporalmente deshabilitado
-import '../shared/layout.js';
+// import '../shared/layout.js';
 
 // ⚠️ SESIÓN TEMPORAL PARA TESTING (REMOVER EN PRODUCCIÓN)
 if (!localStorage.getItem('session')) {

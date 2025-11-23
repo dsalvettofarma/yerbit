@@ -2,45 +2,87 @@
 :root {
   --font-family: "Inter", sans-serif;
 
-  /* Tema Oscuro (Default) */
-  --bg-dark: #1a1a1a;
-  --bg-panel-dark: #252526;
-  --border-dark: #333333;
-  --text-primary-dark: #e0e0e0;
-  --text-secondary-dark: #a0a0a0;
+  /* === PALETA PRIMITIVA (Colores Base) === */
+  /* === TEMA OSCURO (DEFAULT) === */
+  /* Neutrales */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --black: #000000;
+  --white: #ffffff;
 
-  /* Tema Claro */
-  --bg-light: #f5f5f7;
-  --bg-panel-light: #ffffff;
-  --border-light: #e5e5e5;
-  --text-primary-light: #1d1d1f;
-  --text-secondary-light: #515154;
+  /* Brand / Acento */
+  --indigo-500: #6366f1;
+  --indigo-600: #4f46e5;
+  --indigo-700: #4338ca;
 
-  /* Acento y otros */
-  --accent-color: #7e7dd9;
-  --accent-hover: #9493e0;
-  --green-neon: #39ff14;
+  /* Estados */
+  --green-500: #22c55e;
+  --red-500: #ef4444;
+  --yellow-500: #eab308;
+
+  /* Dimensiones Layout */
   --sidebar-width-expanded: 250px;
   --sidebar-width-collapsed: 70px;
   --header-height: 60px;
   --transition-speed: 0.3s;
 }
 
-/* Aplicación de temas */
+/* === VARIABLES SEMÁNTICAS (El Tema Real) === */
+/* Por defecto: TEMA OSCURO */
 body {
-  --bg: var(--bg-dark);
-  --bg-panel: var(--bg-panel-dark);
-  --border: var(--border-dark);
-  --text-primary: var(--text-primary-dark);
-  --text-secondary: var(--text-secondary-dark);
+  /* Fondos */
+  --bg-page: var(--gray-900);          /* Fondo principal de la página */
+  --bg-panel: var(--gray-800);         /* Fondo de tarjetas, sidebar, header */
+  --bg-hover: var(--gray-700);         /* Fondo al pasar mouse */
+  --bg-input: var(--gray-900);         /* Fondo de inputs */
+
+  /* Bordes */
+  --border-color: var(--gray-700);     /* Color de bordes generales */
+  --border-focus: var(--indigo-500);   /* Color borde al hacer foco */
+
+  /* Textos */
+  --text-primary: var(--gray-100);     /* Texto principal (títulos) */
+  --text-secondary: var(--gray-400);   /* Texto secundario (subtítulos) */
+  --text-inverse: var(--gray-900);     /* Texto sobre fondos claros */
+
+  /* Acentos */
+  --accent-primary: var(--indigo-500);
+  --accent-hover: var(--indigo-600);
+  
+  /* Estados */
+  --status-success: var(--green-500);
+  --status-error: var(--red-500);
+  --status-warning: var(--yellow-500);
 }
 
+/* TEMA CLARO (Sobrescribe las variables semánticas) */
 body.light-theme {
-  --bg: var(--bg-light);
-  --bg-panel: var(--bg-panel-light);
-  --border: var(--border-light);
-  --text-primary: var(--text-primary-light);
-  --text-secondary: var(--text-secondary-light);
+  /* Fondos */
+  --bg-page: var(--gray-100);
+  --bg-panel: var(--white);
+  --bg-hover: var(--gray-50);
+  --bg-input: var(--white);
+
+  /* Bordes */
+  --border-color: var(--gray-200);
+  --border-focus: var(--indigo-600);
+
+  /* Textos */
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-500);
+  --text-inverse: var(--white);
+
+  /* Acentos */
+  --accent-primary: var(--indigo-600);
+  --accent-hover: var(--indigo-700);
 }
 
 /* === RESET Y ESTILOS BASE === */
@@ -52,7 +94,7 @@ body.light-theme {
 
 body {
   font-family: var(--font-family);
-  background-color: var(--bg);
+  background-color: var(--bg-page);
   color: var(--text-primary);
   transition: background-color var(--transition-speed),
     color var(--transition-speed);
@@ -88,7 +130,7 @@ a {
   justify-content: space-between;
   padding: 0 20px;
   background-color: var(--bg-panel);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-color);
   position: fixed;
   top: 0;
   left: 0;
@@ -119,7 +161,7 @@ a {
 
 .sidebar-toggle:hover,
 .theme-switch:hover {
-  background-color: var(--border);
+  background-color: var(--border-color);
   color: var(--text-primary);
 }
 
@@ -129,7 +171,7 @@ a {
   font-weight: 600;
   font-size: 1.2rem;
   margin-left: 15px;
-  color: var(--accent-color);
+  color: var(--accent-primary);
 }
 
 .logo i {
@@ -157,7 +199,7 @@ a {
   padding-top: 0;
   overflow-x: hidden;
   transition: background-color var(--transition-speed);
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--border-color);
   position: fixed;
   top: var(--header-height);
   left: 0;
@@ -183,14 +225,14 @@ a {
 }
 
 .menu-item a:hover {
-  background-color: var(--border);
+  background-color: var(--border-color);
   color: var(--text-primary);
 }
 
 .menu-item.active a {
-  color: var(--accent-color);
+  color: var(--accent-primary);
   font-weight: 500;
-  background-color: rgba(126, 125, 217, 0.1);
+  background-color: rgba(99, 102, 241, 0.1); /* Indigo con opacidad */
 }
 
 /* Indicador de elemento activo */
@@ -201,7 +243,7 @@ a {
   left: 0;
   width: 4px;
   height: 100%;
-  background-color: var(--accent-color);
+  background-color: var(--accent-primary);
 }
 
 .menu-item .icon-container {
@@ -271,3 +313,153 @@ main {
   color: var(--text-secondary);
   line-height: 1.6;
 }
+
+/* =========================================
+   SISTEMA DE DISEÑO HÍBRIDO (UTILIDADES)
+   ========================================= */
+
+/* --- LAYOUT --- */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Grid responsivo básico (auto-fit) */
+.grid-responsive { 
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+}
+
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+
+/* --- ESPACIADO (1 unidad = 0.25rem = 4px) --- */
+.m-0 { margin: 0; }
+.m-2 { margin: 0.5rem; }
+.m-4 { margin: 1rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+
+.p-0 { padding: 0; }
+.p-2 { padding: 0.5rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+
+/* --- TIPOGRAFÍA --- */
+.text-sm { font-size: 0.875rem; }
+.text-base { font-size: 1rem; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; }
+
+.font-medium { font-weight: 500; }
+.font-bold { font-weight: 700; }
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-accent { color: var(--accent-primary); }
+.text-success { color: var(--status-success); }
+.text-error { color: var(--status-error); }
+
+/* --- COMPONENTES ESTÁNDAR --- */
+
+/* Card: Contenedor blanco/oscuro con sombra suave */
+.card {
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent-primary);
+}
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--accent-primary);
+  color: white;
+}
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Badges / Etiquetas */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.badge-success {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--status-success);
+}
+.badge-warning {
+  background-color: rgba(234, 179, 8, 0.1);
+  color: var(--status-warning);
+}
+.badge-error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--status-error);
+}
+
+/* Icon Box (Cuadradito para iconos) */
+.icon-box {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background-color: var(--bg-hover);
+  color: var(--accent-primary);
+}
+

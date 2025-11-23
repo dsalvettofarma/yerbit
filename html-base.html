@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Título de la pestaña del navegador -->
+    <title>HTML Base - Esqueleto</title>
+    
+    <!-- ==================================================================================
+         1. IMPORTACIÓN DE ESTILOS Y LIBRERÍAS
+         ================================================================================== -->
+    
+    <!-- (REQUERIDO) Estilos Base + Utilidades: 
+         Incluye el layout y el Sistema de Diseño Híbrido (.flex, .card, .p-4, etc.) -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- (REQUERIDO) Iconos: Usamos Tabler Icons en todo el proyecto. -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    
+    <!-- (OPCIONAL) Fuentes: Google Fonts para mejor estética. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ==================================================================================
+         2. MOTOR DEL LAYOUT (¡MUY IMPORTANTE!)
+         ================================================================================== 
+         Este script es el que "inyecta" mágicamente el Header y la Sidebar. -->
+    <script type="module" src="dashboard-layout.js"></script>
+
+</head>
+<body>
+
+    <!-- ==================================================================================
+         3. ESTRUCTURA DEL DOM
+         ================================================================================== -->
+
+    <!-- Contenedor Principal -->
+    <div class="dashboard-container">
+        
+        <!-- Área Principal -->
+        <main id="mainContent">
+            
+            <!-- Contenedor del Módulo -->
+            <div id="module-content" class="p-6">
+                
+                <!-- ==============================================================
+                     AQUÍ COMIENZA TU CÓDIGO
+                     Usa las clases de utilidad de styles.css (.flex, .card, .mb-4)
+                     ============================================================== -->
+                
+                <!-- Ejemplo de Título -->
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold">Título de tu Nuevo Módulo</h1>
+                        <p class="text-secondary">Subtítulo o descripción breve.</p>
+                    </div>
+                    <!-- Ejemplo de Botón -->
+                    <button class="btn btn-primary">
+                        <i class="ti ti-plus"></i> Acción Principal
+                    </button>
+                </div>
+
+                <!-- Ejemplo de Contenido en Tarjeta -->
+                <div class="card text-center p-6">
+                    <div class="icon-box m-auto mb-4">
+                        <i class="ti ti-template"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Módulo Vacío</h3>
+                    <p class="text-secondary mb-4">
+                        Este es un esqueleto listo para usar. <br>
+                        Edita este archivo para comenzar.
+                    </p>
+                </div>
+
+                <!-- ==============================================================
+                     AQUÍ TERMINA TU CÓDIGO
+                     ============================================================== -->
+
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

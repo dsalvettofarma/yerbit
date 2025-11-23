@@ -17,5 +17,16 @@
   "engines": {
     "node": ">=18"
   },
-  "private": true
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsalvettofarma/yerbit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dsalvettofarma/yerbit/issues"
+  },
+  "homepage": "https://github.com/dsalvettofarma/yerbit#readme"
 }
