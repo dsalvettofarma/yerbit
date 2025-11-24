@@ -420,6 +420,31 @@ function marcarAlertaComoRevisada(uid) {
             }) : 'Fecha desconocida';
 
         let revisado = getVal('Revisado'); //
+        
+        // Construir HTML del elemento
+        alertaDiv.innerHTML = `
+            <div class="alerta-header">
+                <span class="alerta-fecha">${fechaFormateada}</span>
+                <span class="alerta-estado ${String(revisado).toLowerCase() === 'sí' ? 'revisado' : 'pendiente'}">
+                    ${String(revisado).toLowerCase() === 'sí' ? 'Revisado' : 'Pendiente'}
+                </span>
+            </div>
+            <div class="alerta-body">
+                <div class="alerta-asunto">${asunto}</div>
+            </div>
+        `;
+        
+        // Añadir evento de click para abrir detalle
+        alertaDiv.addEventListener('click', () => {
+             const cuerpo = getVal('Cuerpo') || getVal('Body') || '';
+             const motivo = getVal('Detalles_Disparo') || '';
+             _abrirModalDetalle(asunto, cuerpo, motivo, alerta);
+        });
+
+        return alertaDiv;
+    }
+
+    async function _cargarYFiltrarAlertas() {
         // Verificación de seguridad de elementos DOM
         if (!listaAlertasContentElement || !loadingAlertasElement || !noAlertasElement || !errorAlertasElement || 
             !cuerpoTablaHistorialElement || !loadingHistorialRowElement || !noHistorialRowElement || !errorHistorialRowElement) {
@@ -453,6 +478,11 @@ function marcarAlertaComoRevisada(uid) {
         if (cuerpoTablaHistorialElement) {
             cuerpoTablaHistorialElement.querySelectorAll('tr:not(#loading-historial-row):not(#no-historial-row):not(#error-historial-row)').forEach(row => row.remove());
         }
+        
+        // Limpiar lista de alertas
+        if (listaAlertasContentElement) {
+            listaAlertasContentElement.innerHTML = '';
+        }
 
         try {
             console.log('ALERTAS: Solicitando datos a Apps Script...');
@@ -483,7 +513,6 @@ function marcarAlertaComoRevisada(uid) {
                 const ESTADO_KEY = headerMap['estado'] || 'Estado';
                 const REVISADO_KEY = headerMap['revisado'] || 'Revisado';
                 const TIMESTAMP_KEY = headerMap['timestamp'] || 'Timestamp';
-                const UID_KEY = headerMap['uid'] || 'UID';
                 
                 // Filtrar alertas positivas no revisadas
                 const alertasPositivasNoRevisadas = todasLasAlertas.filter(alerta => {
