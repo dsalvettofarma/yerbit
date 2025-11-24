@@ -16,7 +16,7 @@ header.header-section-title{
   background:none;
 }
 .header-section-title {
-  font-size: var(--font-size-xxl, 2.4rem);
+  font-size: var(--font-size-xxl, 1.75rem);
   font-weight: var(--font-weight-bold, 700);
   color: var(--color-on-background);
   text-align: center;
@@ -31,7 +31,7 @@ header.header-section-title{
 }
 
 .monitor-alertas-root .section-title {
-  font-size: var(--font-size-xl, 2rem);
+  font-size: var(--font-size-xl, 1.25rem);
   font-weight: var(--font-weight-semibold, 600);
   margin-bottom: 1rem;
   color: var(--color-on-surface);
@@ -66,17 +66,17 @@ header.header-section-title{
 }
 .monitor-alertas-root .alerta-item p {
   margin: 0.15rem 0;
-  font-size: var(--font-size-lg, 1.6rem);
+  font-size: var(--font-size-lg, 0.95rem);
 }
 .monitor-alertas-root .alerta-item .alerta-timestamp {
-  font-size: var(--font-size-md, 1.2rem);
+  font-size: var(--font-size-md, 0.85rem);
   color: var(--color-on-surface-variant);
 }
 .monitor-alertas-root .alerta-item .alerta-asunto {
   font-weight: 500;
 }
 .monitor-alertas-root .alerta-item .alerta-detalle-link {
-  font-size: var(--font-size-md, 1.2rem);
+  font-size: var(--font-size-md, 0.85rem);
   color: var(--color-secondary);
   text-decoration: underline;
   cursor: pointer;
@@ -90,7 +90,7 @@ header.header-section-title{
   padding: 0.7rem;
   text-align: center;
   font-style: italic;
-  font-size: var(--font-size-xl, 2rem);
+  font-size: var(--font-size-xl, 1rem);
 }
 .monitor-alertas-root .status-message.error-message {
   color: var(--color-error);
@@ -116,10 +116,10 @@ header.header-section-title{
 .monitor-alertas-root .sheet-button {
   background-color: var(--color-tertiary);
   color: var(--color-on-tertiary);
-  padding: 0.6rem 1.2rem;
+  padding: 0.5rem 1rem;
   border-radius: var(--border-radius-medium);
   text-decoration: none;
-  font-size: var(--font-size-lg, 1.6rem);
+  font-size: var(--font-size-lg, 0.9rem);
   font-weight: var(--font-weight-medium, 500);
   display: inline-flex;
   align-items: center;
@@ -154,7 +154,7 @@ header.header-section-title{
   padding: 0.7rem 1rem;
   text-align: left;
   border-bottom: 1px solid var(--color-outline);
-  font-size: var(--font-size-lg, 1.6rem);
+  font-size: var(--font-size-lg, 0.875rem);
   line-height: var(--line-height-base);
 }
 
@@ -198,7 +198,7 @@ text-align: right;
 .monitor-alertas-root .data-table thead tr {
   background-color: var(--color-surface-container-hover);
   color: var(--color-on-surface);
-  font-size: var(--font-size-md, 1.2rem);
+  font-size: var(--font-size-md, 0.85rem);
   text-transform: uppercase;
   font-weight: var(--font-weight-semibold, 600);
   letter-spacing: 0.05em;
@@ -272,7 +272,7 @@ text-align: right;
 }
 
 .monitor-alertas-root .alerta-asunto-display {
-  font-size: var(--font-size-lg, 1.6rem);
+  font-size: var(--font-size-lg, 0.95rem);
   font-weight: var(--font-weight-semibold, 600);
   color: var(--color-on-surface);
   margin-bottom: 0.15rem;
@@ -282,7 +282,7 @@ text-align: right;
 }
 
 .monitor-alertas-root .alerta-fecha-display {
-  font-size: var(--font-size-md, 1.2rem);
+  font-size: var(--font-size-md, 0.85rem);
   color: var(--color-on-surface-variant);
 }
 
@@ -295,8 +295,8 @@ text-align: right;
   background-color: var(--color-primary); /* Un color que no sea el rojo de la alerta */
   color: var(--color-on-primary);
   border: none;
-  padding: 0.6rem 2.5rem;
-  font-size: var(--font-size-lg, 1.6rem);
+  padding: 0.5rem 1.5rem;
+  font-size: var(--font-size-lg, 0.9rem);
   border-radius: var(--border-radius-small);
   cursor: pointer;
   display: inline-flex;
@@ -316,7 +316,7 @@ text-align: right;
 
 
 .monitor-alertas-root .revisado-texto {
-  font-size: var(--font-size-lg, 1.6rem);
+  font-size: var(--font-size-lg, 0.9rem);
   color: var(--color-secondary); /* Verde o azul para indicar "Revisado" */
   font-style: italic;
   font-weight: 500;
@@ -374,7 +374,7 @@ text-align: right;
 
 .modal-header h3 {
   margin: 0;
-  font-size: var(--font-size-xl, 2rem);
+  font-size: var(--font-size-xl, 1.25rem);
   font-weight: 500;
   color: var(--color-primary, #333);
 }
@@ -396,7 +396,7 @@ text-align: right;
   overflow-y: auto; /* Habilita scroll si el contenido es muy largo */
   white-space: pre-wrap; /* Conserva saltos de línea y espacios del email */
   font-family: 'Menlo', 'Monaco', 'Consolas', "Courier New", monospace; /* Mejor para texto crudo */
-  font-size: var(--font-size-lg, 1.6rem); /* Ligeramente más pequeño */
+  font-size: var(--font-size-lg, 0.9rem); /* Ligeramente más pequeño */
   line-height: 1.5;
   color: var(--color-on-surface, #333);
   margin-bottom: 1rem; /* Espacio si hay datos parseados debajo */
@@ -406,7 +406,7 @@ text-align: right;
     /* Estilos para la sección de datos parseados (Fase 2) */
     border-top: 1px solid var(--color-outline, #eee);
     padding-top: 0.7rem;
-    font-size: var(--font-size-md, 1.2rem);
+    font-size: var(--font-size-md, 0.85rem);
 }
 
 .highlighted-keyword {
@@ -440,7 +440,7 @@ text-align: right;
 
 /* --- NUEVOS ESTILOS PARA LA LEYENDA --- */
 .historial-legend {
-    font-size: var(--font-size-lg, 1.6rem);
+    font-size: var(--font-size-lg, 0.9rem);
     color: var(--color-on-surface-variant);
     background-color: var(--color-surface-container);
     padding: 0.7rem 1rem;
@@ -459,7 +459,7 @@ text-align: right;
     font-weight: var(--font-weight-semibold);
     padding: 0.1em 0.3em;
     border-radius: 3px;
-    font-size: var(--font-size-lg, 1.6rem);
+    font-size: var(--font-size-lg, 0.85rem);
 }
 .estado-tag.positivo {
     background-color: var(--color-error-container);
@@ -508,7 +508,7 @@ text-align: right;
   padding: 0.7rem 1rem;
   text-align: left;
   border-bottom: 1px solid var(--color-outline);
-  font-size: var(--font-size-lg, 1.6rem);
+  font-size: var(--font-size-lg, 0.875rem);
   line-height: var(--line-height-base);
 }
 
@@ -529,7 +529,7 @@ text-align: right;
 .monitor-alertas-root .data-table thead tr {
   background-color: var(--color-surface-container-hover);
   color: var(--color-on-surface);
-  font-size: var(--font-size-md, 1.2rem);
+  font-size: var(--font-size-md, 0.85rem);
   text-transform: uppercase;
   font-weight: var(--font-weight-semibold, 600);
   letter-spacing: 0.05em;
@@ -574,7 +574,7 @@ text-align: right;
     padding: 0.7rem 1.2rem;
     border-radius: 6px;
     margin-bottom: 1rem;
-    font-size: var(--font-size-lg, 1.6rem);
+    font-size: var(--font-size-lg, 0.9rem);
     display: flex;
     align-items: center;
     gap: 0.4em;
@@ -589,7 +589,7 @@ text-align: right;
   border-left: 3px solid #41b2ef;
   padding: 0.7em 1.2em;
   margin-bottom: 1em;
-  font-size: var(--font-size-lg, 1.6rem);
+  font-size: var(--font-size-lg, 0.9rem);
   border-radius: 6px;
 }
 .paginado-historial {

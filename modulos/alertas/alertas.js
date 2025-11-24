@@ -486,105 +486,162 @@ if (btnMarcar) {
 
     // La PARTE 3 contendrá _cargarYFiltrarAlertas y el cierre de la IIFE.
     async function _cargarYFiltrarAlertas() {
-        if (!listaAlertasContentElement || !loadingAlertasElement || !noAlertasElement || !errorAlertasElement || //
-            !cuerpoTablaHistorialElement || !loadingHistorialRowElement || !noHistorialRowElement || !errorHistorialRowElement) { //
-            console.error("ALERTAS: Faltan elementos del DOM para cargar y filtrar alertas.");
-            return;
+        console.log('ALERTAS: Iniciando _cargarYFiltrarAlertas...');
+        
+        // Verificación de seguridad de elementos DOM
+        if (!listaAlertasContentElement || !loadingAlertasElement || !noAlertasElement || !errorAlertasElement || 
+            !cuerpoTablaHistorialElement || !loadingHistorialRowElement || !noHistorialRowElement || !errorHistorialRowElement) {
+            console.error("ALERTAS: Faltan elementos del DOM. Reintentando obtener referencias...");
+            // Intento de recuperación de referencias
+            listaAlertasContentElement = document.getElementById('lista-alertas-content');
+            loadingAlertasElement = document.getElementById('loading-alertas');
+            noAlertasElement = document.getElementById('no-alertas');
+            errorAlertasElement = document.getElementById('error-alertas');
+            cuerpoTablaHistorialElement = document.getElementById('cuerpo-tabla-historial');
+            loadingHistorialRowElement = document.getElementById('loading-historial-row');
+            noHistorialRowElement = document.getElementById('no-historial-row');
+            errorHistorialRowElement = document.getElementById('error-historial-row');
+            
+            if (!listaAlertasContentElement) {
+                console.error("ALERTAS: Imposible recuperar referencias DOM. Abortando.");
+                return;
+            }
         }
 
-        loadingAlertasElement.classList.remove('hidden'); //
-        noAlertasElement.classList.add('hidden'); //
-        errorAlertasElement.classList.add('hidden'); //
-    // Eliminar llamada recursiva incorrecta
-        // ...existing code...
-        loadingHistorialRowElement.classList.remove('hidden'); //
-        noHistorialRowElement.classList.add('hidden'); //
-        errorHistorialRowElement.classList.add('hidden'); //
-        cuerpoTablaHistorialElement.querySelectorAll('tr:not(#loading-historial-row):not(#no-historial-row):not(#error-historial-row)').forEach(row => row.remove()); //
+        // Mostrar estados de carga
+        if (loadingAlertasElement) loadingAlertasElement.classList.remove('hidden');
+        if (noAlertasElement) noAlertasElement.classList.add('hidden');
+        if (errorAlertasElement) errorAlertasElement.classList.add('hidden');
+
+        if (loadingHistorialRowElement) loadingHistorialRowElement.classList.remove('hidden');
+        if (noHistorialRowElement) noHistorialRowElement.classList.add('hidden');
+        if (errorHistorialRowElement) errorHistorialRowElement.classList.add('hidden');
+        
+        // Limpiar tabla
+        if (cuerpoTablaHistorialElement) {
+            cuerpoTablaHistorialElement.querySelectorAll('tr:not(#loading-historial-row):not(#no-historial-row):not(#error-historial-row)').forEach(row => row.remove());
+        }
 
         try {
-            const response = await _appsScriptRequest('getAlertData', {}, 'GET'); //
-            loadingAlertasElement.classList.add('hidden'); //
-            loadingHistorialRowElement.classList.add('hidden'); //
+            console.log('ALERTAS: Solicitando datos a Apps Script...');
+            const response = await _appsScriptRequest('getAlertData', {}, 'GET');
+            console.log('ALERTAS: Datos recibidos en _cargarYFiltrarAlertas:', response);
 
-            if (response && response.success && response.data && Array.isArray(response.data) && response.headers && Array.isArray(response.headers)) { //
-                const todasLasAlertas = response.data; //
-                const headers = response.headers; //
+            // Ocultar loaders
+            if (loadingAlertasElement) loadingAlertasElement.classList.add('hidden');
+            if (loadingHistorialRowElement) loadingHistorialRowElement.classList.add('hidden');
+
+            if (response && response.success && response.data && Array.isArray(response.data)) {
+                const todasLasAlertas = response.data;
+                const headers = response.headers || [];
+                console.log(`ALERTAS: Procesando ${todasLasAlertas.length} alertas.`);
+
+                // Mapeo de headers más robusto
                 const headerMap = {};
-                headers.forEach(h => { if (typeof h === 'string') { headerMap[h.toLowerCase().trim()] = h; } });
-
-                const ESTADO_KEY_NORMALIZED = 'estado'; const REVISADO_KEY_NORMALIZED = 'revisado';
-                const TIMESTAMP_KEY_NORMALIZED = 'timestamp'; const ASUNTO_KEY_NORMALIZED = 'asunto';
-                const essentialNormalizedKeys = [ESTADO_KEY_NORMALIZED, REVISADO_KEY_NORMALIZED, TIMESTAMP_KEY_NORMALIZED, 'uid', 'cuerpo', ASUNTO_KEY_NORMALIZED]; //
-                if (essentialNormalizedKeys.some(k => !headerMap[k])) {
-                    throw new Error(`Columnas esenciales (${essentialNormalizedKeys.filter(k=>!headerMap[k]).join(', ')}) no encontradas. Headers: ${JSON.stringify(headers)}`);
+                if (Array.isArray(headers)) {
+                    headers.forEach(h => { 
+                        if (typeof h === 'string') { 
+                            headerMap[h.toLowerCase().trim()] = h; 
+                        } 
+                    });
                 }
-                const ESTADO_KEY = headerMap[ESTADO_KEY_NORMALIZED]; const REVISADO_KEY = headerMap[REVISADO_KEY_NORMALIZED];
-                const TIMESTAMP_KEY = headerMap[TIMESTAMP_KEY_NORMALIZED];
+                console.log('ALERTAS: Header Map:', headerMap);
 
-                const alertasPositivasNoRevisadas = todasLasAlertas.filter(alerta => { //
-                    const estadoActual = alerta[ESTADO_KEY] ? String(alerta[ESTADO_KEY]).toLowerCase() : ""; //
-                    const revisadoActual = alerta[REVISADO_KEY] ? String(alerta[REVISADO_KEY]).toLowerCase() : ""; //
-                    return estadoActual === 'positivo' && revisadoActual !== 'sí'; //
-                }).sort((a, b) => (new Date(b[TIMESTAMP_KEY]) || 0) - (new Date(a[TIMESTAMP_KEY]) || 0)); //
+                // Definir claves
+                const ESTADO_KEY = headerMap['estado'] || 'Estado';
+                const REVISADO_KEY = headerMap['revisado'] || 'Revisado';
+                const TIMESTAMP_KEY = headerMap['timestamp'] || 'Timestamp';
+                const UID_KEY = headerMap['uid'] || 'UID';
+                
+                // Filtrar alertas positivas no revisadas
+                const alertasPositivasNoRevisadas = todasLasAlertas.filter(alerta => {
+                    const estadoActual = alerta[ESTADO_KEY] ? String(alerta[ESTADO_KEY]).toLowerCase() : "";
+                    const revisadoActual = alerta[REVISADO_KEY] ? String(alerta[REVISADO_KEY]).toLowerCase() : "";
+                    return estadoActual === 'positivo' && revisadoActual !== 'sí';
+                }).sort((a, b) => (new Date(b[TIMESTAMP_KEY]) || 0) - (new Date(a[TIMESTAMP_KEY]) || 0));
+
+                console.log(`ALERTAS: ${alertasPositivasNoRevisadas.length} alertas positivas no revisadas encontradas.`);
 
                 if (alertasPositivasNoRevisadas.length > 0) {
                     alertasPositivasNoRevisadas.forEach(alertaF => {
                         const el = _crearElementoAlerta(alertaF, headers, headerMap);
-                        if (el) listaAlertasContentElement.appendChild(el); //
+                        if (el && listaAlertasContentElement) listaAlertasContentElement.appendChild(el);
                     });
                 } else {
-                    noAlertasElement.classList.remove('hidden'); //
+                    if (noAlertasElement) noAlertasElement.classList.remove('hidden');
                 }
 
-                const historialOrdenado = [...todasLasAlertas].sort((a, b) => (new Date(b[TIMESTAMP_KEY]) || 0) - (new Date(a[TIMESTAMP_KEY]) || 0)); //
+                // Renderizar historial
+                const historialOrdenado = [...todasLasAlertas].sort((a, b) => (new Date(b[TIMESTAMP_KEY]) || 0) - (new Date(a[TIMESTAMP_KEY]) || 0));
+                
                 if (historialOrdenado.length > 0) {
                     historialOrdenado.forEach((item, index) => {
-                        const fila = cuerpoTablaHistorialElement.insertRow(); //
-                        const getValHist = (kNorm) => headerMap[kNorm.toLowerCase().trim()] && item[headerMap[kNorm.toLowerCase().trim()]] !== undefined ? item[headerMap[kNorm.toLowerCase().trim()]] : 'N/A';
-                        const estadoHistClase = String(getValHist(ESTADO_KEY_NORMALIZED)).toLowerCase().replace(/[^a-z0-9-_]/g, '') || 'desconocido'; //
-                        const revisadoHistClase = String(getValHist(REVISADO_KEY_NORMALIZED)).toLowerCase() === 'sí' ? 'si' : 'no'; //
-                        const asuntoCompleto = item.Asunto || '';
-                        // --- MEJORA: Añadir tooltip y texto informativo ---
-                        const estadoTitle = item.Estado === 'Positivo' ? 'La alerta coincidió con una regla y requiere atención.' : 'El email fue procesado pero no cumplió las condiciones.';
-                        const detallesDisparo = item.Detalles_Disparo || 'No hay detalles disponibles.';
-                        fila.insertCell().innerHTML = `<div class="col-index">${index + 1}</div>`;
-                    fila.insertCell().innerHTML = `<div class="col-timestamp">${item.Timestamp ? new Date(item.Timestamp).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'medium' }) : 'N/A'}</div>`;
-                    fila.insertCell().innerHTML = `<div class="col-asunto" title="${asuntoCompleto}">${String(asuntoCompleto).substring(0, 50)}${String(asuntoCompleto).length > 50 ? '...' : ''}</div>`;
-                    fila.insertCell().innerHTML = `<div class="col-condicion estado-${estadoHistClase}" title="${estadoTitle}">${item.Estado || 'N/A'}</div>`;
-                    fila.insertCell().innerHTML = `<div class="col-revisado revisado-${revisadoHistClase}">${item.Revisado || 'No'}</div>`;
-                    
-                    const detalles = item.Detalles_Disparo || 'No hay detalles disponibles.';
-                    // En la función que arma cada fila del historial
-                    fila.insertCell().innerHTML = `
-                    <div class="col-razon" title="${detalles}">
-                        <i class="ti ti-info-circle info-disparo-icon" tabindex="0" aria-label="Ver motivo de disparo"></i> 
-                        <span class="texto-motivo">${detalles}</span>
-                    </div>
-                    `;
+                        if (!cuerpoTablaHistorialElement) return;
+                        const fila = cuerpoTablaHistorialElement.insertRow();
+                        
+                        const getVal = (key) => item[key] !== undefined ? item[key] : 'N/A';
+                        
+                        const estadoVal = getVal(ESTADO_KEY);
+                        const revisadoVal = getVal(REVISADO_KEY);
+                        const timestampVal = getVal(TIMESTAMP_KEY);
+                        const asuntoVal = item['Asunto'] || item[headerMap['asunto']] || '';
+                        const detallesVal = item['Detalles_Disparo'] || item[headerMap['detalles_disparo']] || 'No hay detalles disponibles.';
 
-                    
-                });
+                        const estadoHistClase = String(estadoVal).toLowerCase().replace(/[^a-z0-9-_]/g, '') || 'desconocido';
+                        const revisadoHistClase = String(revisadoVal).toLowerCase() === 'sí' ? 'si' : 'no';
+                        
+                        const estadoTitle = estadoVal === 'Positivo' ? 'La alerta coincidió con una regla y requiere atención.' : 'El email fue procesado pero no cumplió las condiciones.';
+
+                        fila.insertCell().innerHTML = `<div class="col-index">${index + 1}</div>`;
+                        fila.insertCell().innerHTML = `<div class="col-timestamp">${timestampVal ? new Date(timestampVal).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'medium' }) : 'N/A'}</div>`;
+                        fila.insertCell().innerHTML = `<div class="col-asunto" title="${asuntoVal}">${String(asuntoVal).substring(0, 50)}${String(asuntoVal).length > 50 ? '...' : ''}</div>`;
+                        fila.insertCell().innerHTML = `<div class="col-condicion estado-${estadoHistClase}" title="${estadoTitle}">${estadoVal}</div>`;
+                        fila.insertCell().innerHTML = `<div class="col-revisado revisado-${revisadoHistClase}">${revisadoVal || 'No'}</div>`;
+                        
+                        fila.insertCell().innerHTML = `
+                        <div class="col-razon" title="${detallesVal}">
+                            <i class="ti ti-info-circle info-disparo-icon" tabindex="0" aria-label="Ver motivo de disparo"></i> 
+                        </div>
+                        `;
+                    });
                 } else {
-                    noHistorialRowElement.classList.remove('hidden'); //
+                    if (noHistorialRowElement) noHistorialRowElement.classList.remove('hidden');
                 }
             } else {
                 const errorMsg = (response && response.error) || 'Formato de datos incorrecto o fallo del servidor.';
-                console.warn('ALERTAS: Respuesta de getAlertData sin formato esperado o success:false.', response);
-                noAlertasElement.classList.remove('hidden'); //
-                noHistorialRowElement.classList.remove('hidden'); //
-                errorAlertasElement.textContent = `Error: ${errorMsg}`; errorAlertasElement.classList.remove('hidden'); //
-                const errHistCell = errorHistorialRowElement ? errorHistorialRowElement.querySelector('td') : null; //
-                if(errHistCell) errHistCell.textContent = `Error: ${errorMsg}`;
-                errorHistorialRowElement.classList.remove('hidden'); //
+                console.warn('ALERTAS: Respuesta inesperada:', response);
+                
+                if (noAlertasElement) noAlertasElement.classList.remove('hidden');
+                if (noHistorialRowElement) noHistorialRowElement.classList.remove('hidden');
+                
+                if (errorAlertasElement) {
+                    errorAlertasElement.textContent = `Error: ${errorMsg}`;
+                    errorAlertasElement.classList.remove('hidden');
+                }
+                
+                if (errorHistorialRowElement) {
+                    const errHistCell = errorHistorialRowElement.querySelector('td');
+                    if(errHistCell) errHistCell.textContent = `Error: ${errorMsg}`;
+                    errorHistorialRowElement.classList.remove('hidden');
+                }
             }
         } catch (error) {
-            console.error('ALERTAS: Catch general en _cargarYFiltrarAlertas:', error);
-            loadingAlertasElement.classList.add('hidden'); errorAlertasElement.textContent = `Error: ${error.message}`; errorAlertasElement.classList.remove('hidden'); //
-            loadingHistorialRowElement.classList.add('hidden'); //
-            const errHistCell = errorHistorialRowElement ? errorHistorialRowElement.querySelector('td') : null; //
-            if(errHistCell) errHistCell.textContent = `Error: ${error.message}`;
-            errorHistorialRowElement.classList.remove('hidden'); //
+            console.error('ALERTAS: Error CRÍTICO en _cargarYFiltrarAlertas:', error);
+            
+            // Asegurar que se oculten los loaders en caso de error
+            if (loadingAlertasElement) loadingAlertasElement.classList.add('hidden');
+            if (loadingHistorialRowElement) loadingHistorialRowElement.classList.add('hidden');
+            
+            if (errorAlertasElement) {
+                errorAlertasElement.textContent = `Error: ${error.message}`;
+                errorAlertasElement.classList.remove('hidden');
+            }
+            
+            if (errorHistorialRowElement) {
+                const errHistCell = errorHistorialRowElement.querySelector('td');
+                if(errHistCell) errHistCell.textContent = `Error: ${error.message}`;
+                errorHistorialRowElement.classList.remove('hidden');
+            }
         }
     }
 
