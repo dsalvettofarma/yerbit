@@ -490,8 +490,21 @@ function marcarAlertaComoRevisada(uid) {
             console.log('ALERTAS: Datos recibidos en _cargarYFiltrarAlertas:', response);
 
             // Ocultar loaders
-            if (loadingAlertasElement) loadingAlertasElement.classList.add('hidden');
-            if (loadingHistorialRowElement) loadingHistorialRowElement.classList.add('hidden');
+            if (loadingAlertasElement) {
+                loadingAlertasElement.classList.add('hidden');
+                loadingAlertasElement.style.display = 'none'; // Forzar ocultamiento
+                console.log('ALERTAS: Loader de alertas ocultado.');
+            } else {
+                console.error('ALERTAS: No se encontró loadingAlertasElement para ocultarlo.');
+            }
+
+            if (loadingHistorialRowElement) {
+                loadingHistorialRowElement.classList.add('hidden');
+                loadingHistorialRowElement.style.display = 'none'; // Forzar ocultamiento
+                console.log('ALERTAS: Loader de historial ocultado.');
+            } else {
+                console.error('ALERTAS: No se encontró loadingHistorialRowElement para ocultarlo.');
+            }
 
             if (response && response.success && response.data && Array.isArray(response.data)) {
                 const todasLasAlertas = response.data;
@@ -545,39 +558,50 @@ function marcarAlertaComoRevisada(uid) {
                 }
 
                 // Renderizar historial
+                console.log('ALERTAS: Iniciando renderizado de historial...');
                 const historialOrdenado = [...todasLasAlertas].sort((a, b) => (new Date(b[TIMESTAMP_KEY]) || 0) - (new Date(a[TIMESTAMP_KEY]) || 0));
                 
                 if (historialOrdenado.length > 0) {
+                    console.log(`ALERTAS: Renderizando ${historialOrdenado.length} filas de historial.`);
                     historialOrdenado.forEach((item, index) => {
-                        if (!cuerpoTablaHistorialElement) return;
-                        const fila = cuerpoTablaHistorialElement.insertRow();
-                        
-                        const getVal = (key) => item[key] !== undefined ? item[key] : 'N/A';
-                        
-                        const estadoVal = getVal(ESTADO_KEY);
-                        const revisadoVal = getVal(REVISADO_KEY);
-                        const timestampVal = getVal(TIMESTAMP_KEY);
-                        const asuntoVal = item['Asunto'] || item[headerMap['asunto']] || '';
-                        const detallesVal = item['Detalles_Disparo'] || item[headerMap['detalles_disparo']] || 'No hay detalles disponibles.';
+                        if (!cuerpoTablaHistorialElement) {
+                            console.error('ALERTAS: CRÍTICO - cuerpoTablaHistorialElement es NULL');
+                            return;
+                        }
+                        try {
+                            const fila = cuerpoTablaHistorialElement.insertRow();
+                            
+                            const getVal = (key) => item[key] !== undefined ? item[key] : 'N/A';
+                            
+                            const estadoVal = getVal(ESTADO_KEY);
+                            const revisadoVal = getVal(REVISADO_KEY);
+                            const timestampVal = getVal(TIMESTAMP_KEY);
+                            const asuntoVal = item['Asunto'] || item[headerMap['asunto']] || '';
+                            const detallesVal = item['Detalles_Disparo'] || item[headerMap['detalles_disparo']] || 'No hay detalles disponibles.';
 
-                        const estadoHistClase = String(estadoVal).toLowerCase().replace(/[^a-z0-9-_]/g, '') || 'desconocido';
-                        const revisadoHistClase = String(revisadoVal).toLowerCase() === 'sí' ? 'si' : 'no';
-                        
-                        const estadoTitle = estadoVal === 'Positivo' ? 'La alerta coincidió con una regla y requiere atención.' : 'El email fue procesado pero no cumplió las condiciones.';
+                            const estadoHistClase = String(estadoVal).toLowerCase().replace(/[^a-z0-9-_]/g, '') || 'desconocido';
+                            const revisadoHistClase = String(revisadoVal).toLowerCase() === 'sí' ? 'si' : 'no';
+                            
+                            const estadoTitle = estadoVal === 'Positivo' ? 'La alerta coincidió con una regla y requiere atención.' : 'El email fue procesado pero no cumplió las condiciones.';
 
-                        fila.insertCell().innerHTML = `<div class="col-index">${index + 1}</div>`;
-                        fila.insertCell().innerHTML = `<div class="col-timestamp">${timestampVal ? new Date(timestampVal).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'medium' }) : 'N/A'}</div>`;
-                        fila.insertCell().innerHTML = `<div class="col-asunto" title="${asuntoVal}">${String(asuntoVal).substring(0, 50)}${String(asuntoVal).length > 50 ? '...' : ''}</div>`;
-                        fila.insertCell().innerHTML = `<div class="col-condicion estado-${estadoHistClase}" title="${estadoTitle}">${estadoVal}</div>`;
-                        fila.insertCell().innerHTML = `<div class="col-revisado revisado-${revisadoHistClase}">${revisadoVal || 'No'}</div>`;
-                        
-                        fila.insertCell().innerHTML = `
-                        <div class="col-razon" title="${detallesVal}">
-                            <i class="ti ti-info-circle info-disparo-icon" tabindex="0" aria-label="Ver motivo de disparo"></i> 
-                        </div>
-                        `;
+                            fila.insertCell().innerHTML = `<div class="col-index">${index + 1}</div>`;
+                            fila.insertCell().innerHTML = `<div class="col-timestamp">${timestampVal ? new Date(timestampVal).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'medium' }) : 'N/A'}</div>`;
+                            fila.insertCell().innerHTML = `<div class="col-asunto" title="${asuntoVal}">${String(asuntoVal).substring(0, 50)}${String(asuntoVal).length > 50 ? '...' : ''}</div>`;
+                            fila.insertCell().innerHTML = `<div class="col-condicion estado-${estadoHistClase}" title="${estadoTitle}">${estadoVal}</div>`;
+                            fila.insertCell().innerHTML = `<div class="col-revisado revisado-${revisadoHistClase}">${revisadoVal || 'No'}</div>`;
+                            
+                            fila.insertCell().innerHTML = `
+                            <div class="col-razon" title="${detallesVal}">
+                                <i class="ti ti-info-circle info-disparo-icon" tabindex="0" aria-label="Ver motivo de disparo"></i> 
+                            </div>
+                            `;
+                        } catch (errRow) {
+                            console.error(`ALERTAS: Error al renderizar fila ${index}:`, errRow);
+                        }
                     });
+                    console.log('ALERTAS: Renderizado de historial completado.');
                 } else {
+                    console.log('ALERTAS: No hay historial para mostrar.');
                     if (noHistorialRowElement) noHistorialRowElement.classList.remove('hidden');
                 }
             } else {
