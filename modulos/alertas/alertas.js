@@ -445,43 +445,61 @@ function marcarAlertaComoRevisada(uid) {
     }
 
     async function _cargarYFiltrarAlertas() {
-        // Verificación de seguridad de elementos DOM
-        if (!listaAlertasContentElement || !loadingAlertasElement || !noAlertasElement || !errorAlertasElement || 
-            !cuerpoTablaHistorialElement || !loadingHistorialRowElement || !noHistorialRowElement || !errorHistorialRowElement) {
-            console.error("ALERTAS: Faltan elementos del DOM. Reintentando obtener referencias...");
-            // Intento de recuperación de referencias
-            listaAlertasContentElement = document.getElementById('lista-alertas-content');
-            loadingAlertasElement = document.getElementById('loading-alertas');
-            noAlertasElement = document.getElementById('no-alertas');
-            errorAlertasElement = document.getElementById('error-alertas');
-            cuerpoTablaHistorialElement = document.getElementById('cuerpo-tabla-historial');
-            loadingHistorialRowElement = document.getElementById('loading-historial-row');
-            noHistorialRowElement = document.getElementById('no-historial-row');
-            errorHistorialRowElement = document.getElementById('error-historial-row');
-            
-            if (!listaAlertasContentElement) {
-                console.error("ALERTAS: Imposible recuperar referencias DOM. Abortando.");
-                return;
-            }
+    async function _cargarYFiltrarAlertas() {
+        console.log("ALERTAS: _cargarYFiltrarAlertas iniciado. Actualizando referencias al DOM...");
+        
+        // REFRESCAR REFERENCIAS SIEMPRE para evitar problemas con nodos desconectados
+        listaAlertasContentElement = document.getElementById('lista-alertas-content');
+        loadingAlertasElement = document.getElementById('loading-alertas');
+        noAlertasElement = document.getElementById('no-alertas');
+        errorAlertasElement = document.getElementById('error-alertas');
+        cuerpoTablaHistorialElement = document.getElementById('cuerpo-tabla-historial');
+        loadingHistorialRowElement = document.getElementById('loading-historial-row');
+        noHistorialRowElement = document.getElementById('no-historial-row');
+        errorHistorialRowElement = document.getElementById('error-historial-row');
+        
+        // Verificar si los elementos críticos existen en el documento actual
+        if (!listaAlertasContentElement || !cuerpoTablaHistorialElement) {
+             console.error("ALERTAS: CRÍTICO - No se encuentran los contenedores principales en el DOM actual.");
+             return;
         }
 
-        // Mostrar estados de carga
-        if (loadingAlertasElement) loadingAlertasElement.classList.remove('hidden');
+        // Mostrar estados de carga (asegurarse de que sean visibles si existen)
+        if (loadingAlertasElement) {
+            loadingAlertasElement.classList.remove('hidden');
+            loadingAlertasElement.style.display = ''; 
+        }
         if (noAlertasElement) noAlertasElement.classList.add('hidden');
         if (errorAlertasElement) errorAlertasElement.classList.add('hidden');
 
-        if (loadingHistorialRowElement) loadingHistorialRowElement.classList.remove('hidden');
+        if (loadingHistorialRowElement) {
+            loadingHistorialRowElement.classList.remove('hidden');
+            loadingHistorialRowElement.style.display = '';
+        }
         if (noHistorialRowElement) noHistorialRowElement.classList.add('hidden');
         if (errorHistorialRowElement) errorHistorialRowElement.classList.add('hidden');
         
-        // Limpiar tabla
+        // Limpiar tabla (manteniendo loaders si están dentro, aunque en historial el loader es una fila aparte)
         if (cuerpoTablaHistorialElement) {
-            cuerpoTablaHistorialElement.querySelectorAll('tr:not(#loading-historial-row):not(#no-historial-row):not(#error-historial-row)').forEach(row => row.remove());
+            // Eliminar todas las filas que NO sean los mensajes de estado
+            const filas = Array.from(cuerpoTablaHistorialElement.querySelectorAll('tr'));
+            filas.forEach(row => {
+                if (row.id !== 'loading-historial-row' && row.id !== 'no-historial-row' && row.id !== 'error-historial-row') {
+                    row.remove();
+                }
+            });
         }
         
         // Limpiar lista de alertas
         if (listaAlertasContentElement) {
-            listaAlertasContentElement.innerHTML = '';
+            // Aquí debemos tener cuidado de NO borrar los elementos de estado (loading, no-alertas, error)
+            // Una estrategia mejor es ocultar los mensajes y añadir las alertas al final, 
+            // o borrar todo y recrear los mensajes si fuera necesario.
+            // Dado que los mensajes son hijos directos, si hacemos innerHTML='' los perdemos.
+            
+            // Opción segura: Eliminar solo los elementos con clase 'alerta-item'
+            const itemsPrevios = listaAlertasContentElement.querySelectorAll('.alerta-item');
+            itemsPrevios.forEach(item => item.remove());
         }
 
         try {
