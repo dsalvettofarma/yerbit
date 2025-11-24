@@ -726,6 +726,9 @@ function _detenerAutoVerificacionAlertas() {
   }
 }
 
+// Exponer para debugging manual
+window.debugAlertas = _cargarYFiltrarAlertas;
+
 // Inicialización robusta para módulos
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inicializarModulo);
