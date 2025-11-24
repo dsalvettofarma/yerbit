@@ -420,74 +420,6 @@ function marcarAlertaComoRevisada(uid) {
             }) : 'Fecha desconocida';
 
         let revisado = getVal('Revisado'); //
-        revisado = revisado ? String(revisado).toLowerCase() === 'sí' : false; //
-        const estadoAlerta = String(getVal('Estado')).toLowerCase(); //
-        const cuerpoEmail = getVal('Cuerpo'); //
-
-        alertaDiv.innerHTML = `
-            <div class="alerta-contenido">
-                <p class="alerta-asunto-display" title="${asunto}">${asunto}</p>
-                <p class="alerta-fecha-display">${fechaFormateada}</p>
-            </div>
-            <div class="alerta-acciones">
-                ${(!revisado && estadoAlerta === 'positivo' && uid) ? //
-                    `<button class="btn-marcar-revisado" data-uid="${uid}" title="Marcar como Revisado">
-                        <i class="fas fa-check-circle"></i> Marcar como Revisado
-                      </button>` :
-                    (revisado ? '<span class="revisado-texto"><i class="fas fa-check"></i> Revisado</span>' : '')}
-            </div>`;
-
-        const contenidoDiv = alertaDiv.querySelector('.alerta-contenido');
-        if (contenidoDiv) {
-            contenidoDiv.style.cursor = 'pointer';
-            _addManagedEventListener(contenidoDiv, 'click', () => {
-                _abrirModalDetalle(asunto, cuerpoEmail, alerta.Detalles_Disparo || '');
-            });
-        }
-
-const btnMarcar = alertaDiv.querySelector('.btn-marcar-revisado');
-if (btnMarcar) {
-  _addManagedEventListener(btnMarcar, 'click', async (event) => {
-    event.stopPropagation();
-    const uidParaMarcar = btnMarcar.dataset.uid;
-    
-    // Guardar estado original del botón
-    const originalHTML = btnMarcar.innerHTML;
-    const originalDisabled = btnMarcar.disabled;
-    
-    try {
-      btnMarcar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Marcando...';
-      btnMarcar.disabled = true;
-      
-      const resultado = await marcarAlertaComoRevisada(uidParaMarcar);
-      
-      if (resultado && resultado.success) {
-        alertaDiv.classList.add('alerta-desvaneciendo');
-        setTimeout(() => {
-          alertaDiv.remove();
-          if (listaAlertasContentElement && !listaAlertasContentElement.querySelector('.alerta-item')) {
-            if (noAlertasElement) noAlertasElement.classList.remove('hidden');
-          }
-          _cargarYFiltrarAlertas(); // Recargar datos
-        }, 500);
-      } else {
-        throw new Error(resultado.error || resultado.message || "La operación no fue exitosa");
-      }
-    } catch (error) {
-      console.error('Error al marcar como revisado:', error);
-      btnMarcar.innerHTML = originalHTML;
-      btnMarcar.disabled = originalDisabled;
-      alert(`Error al marcar la alerta: ${error.message}`);
-    }
-  });
-  }
-        return alertaDiv;
-        }
-
-    // La PARTE 3 contendrá _cargarYFiltrarAlertas y el cierre de la IIFE.
-    async function _cargarYFiltrarAlertas() {
-        console.log('ALERTAS: Iniciando _cargarYFiltrarAlertas...');
-        
         // Verificación de seguridad de elementos DOM
         if (!listaAlertasContentElement || !loadingAlertasElement || !noAlertasElement || !errorAlertasElement || 
             !cuerpoTablaHistorialElement || !loadingHistorialRowElement || !noHistorialRowElement || !errorHistorialRowElement) {
@@ -756,6 +688,8 @@ function _iniciarAutoVerificacionAlertas() {
     }, 60000); // cada 60 segundos
 }
 
+// ... (existing code)
+
 function _detenerAutoVerificacionAlertas() {
   if (intervaloVerificacionCambios) {
     clearInterval(intervaloVerificacionCambios);
@@ -763,4 +697,10 @@ function _detenerAutoVerificacionAlertas() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', inicializarModulo);
+// Inicialización robusta para módulos
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarModulo);
+} else {
+    // Si el DOM ya está listo (común en scripts tipo module), ejecutar directamente
+    inicializarModulo();
+}
