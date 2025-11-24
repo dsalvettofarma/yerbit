@@ -524,11 +524,23 @@ function marcarAlertaComoRevisada(uid) {
                 console.log(`ALERTAS: ${alertasPositivasNoRevisadas.length} alertas positivas no revisadas encontradas.`);
 
                 if (alertasPositivasNoRevisadas.length > 0) {
-                    alertasPositivasNoRevisadas.forEach(alertaF => {
+                    console.log(`ALERTAS: Intentando renderizar ${alertasPositivasNoRevisadas.length} alertas.`);
+                    alertasPositivasNoRevisadas.forEach((alertaF, index) => {
+                        console.log(`ALERTAS: Creando elemento para alerta ${index + 1}/${alertasPositivasNoRevisadas.length} (UID: ${alertaF.UID || alertaF.uid})`);
                         const el = _crearElementoAlerta(alertaF, headers, headerMap);
-                        if (el && listaAlertasContentElement) listaAlertasContentElement.appendChild(el);
+                        if (el) {
+                            if (listaAlertasContentElement) {
+                                listaAlertasContentElement.appendChild(el);
+                                console.log(`ALERTAS: Elemento añadido al DOM para alerta ${index + 1}`);
+                            } else {
+                                console.error(`ALERTAS: CRÍTICO - listaAlertasContentElement es NULL al intentar añadir alerta ${index + 1}`);
+                            }
+                        } else {
+                            console.warn(`ALERTAS: _crearElementoAlerta devolvió NULL para alerta ${index + 1}`);
+                        }
                     });
                 } else {
+                    console.log("ALERTAS: No hay alertas positivas para mostrar.");
                     if (noAlertasElement) noAlertasElement.classList.remove('hidden');
                 }
 

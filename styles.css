@@ -475,3 +475,8 @@ main {
   color: var(--accent-primary);
 }
 
+
+/* Utilidad para ocultar elementos */
+.hidden {
+  display: none !important;
+}
