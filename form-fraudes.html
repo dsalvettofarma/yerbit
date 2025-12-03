@@ -1,107 +1,169 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Fraudes - Yerbit</title>
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Fraudes - Yerbit</title>
+
     <!-- 1. Estilos Globales -->
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- 2. Estilos del Módulo -->
-    <link rel="stylesheet" href="modulos/form-fraudes/form-fraudes.css">
+    <link rel="stylesheet" href="modulos/form-fraudes/form-fraudes.css" />
 
     <!-- 3. Layout Manager -->
     <script type="module" src="dashboard-layout.js"></script>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="dashboard-container">
-        <main id="mainContent">
-            <div id="module-content">
-                
-                <!-- Contenido copiado y adaptado de modulos/form-fraudes/form-fraudes.html -->
-                <div class="fraude-main-root">
-                    <div class="fraude-flex-root">
-                        <!-- COLUMNA PRINCIPAL (izquierda) -->
-                        <section class="fraude-col principal">
-                            <section class="fraude-container">
-                                <header class="fraude-header">
-                                    <h2>Registro de fraudes</h2>
-                                    <a href="https://docs.google.com/spreadsheets/d/12mgWvEzfvBi6eYqDmY_Jmpdb00lp4r1FWvERuVhM7gY/edit?usp=sharing" target="_blank" class="btn-secundario">Ver tabla</a>
-                                </header>
-                                <form id="fraude-form" autocomplete="off">
-                                    <div class="form-grid grid-2col">
-                                        <div class="campo" id="campo-no-logueado" style="grid-column: 1 / span 2; display: flex; align-items: center; gap:1.6rem;">
-                                            <input type="checkbox" id="no_logueado" name="no_logueado" />
-                                            <label for="no_logueado">No logueado?</label>
-                                        </div>
-                                        <div class="campo" id="campo-documento">
-                                            <label for="documento">Documento</label>
-                                            <input type="text" id="documento" name="documento" required />
-                                        </div>
-                                        <div class="campo">
-                                            <label for="correo">Correo</label>
-                                            <input type="email" id="correo" name="correo" required />
-                                        </div>
-                                        <div class="campo">
-                                            <label for="nombre">Nombre</label>
-                                            <input type="text" id="nombre" name="nombre" required />
-                                        </div>
-                                        <div class="campo">
-                                            <label for="comentarios">Comentarios (opcional)</label>
-                                            <textarea id="comentarios" name="comentarios"></textarea>
-                                        </div>
-                                        <div class="campo campo-full" style="grid-column: 1 / span 2;">
-                                            <button type="submit" class="btn-primario">
-                                                <span class="btn-text">Enviar</span>
-                                                <span class="btn-spinner" style="display:none;"><span class="loader"></span></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="mensaje" id="mensaje">✅ ¡Reporte enviado con éxito!</div>
-                                    <iframe name="hidden_iframe" style="display: none;"></iframe>
-                                </form>
-
-                                <!-- Buscador y mini-cards -->
-                                <section class="fraude-buscador">
-                                    <h3>Buscar en gestión de fraude</h3>
-                                    <input type="text" id="buscadorFraude" placeholder="Buscar por documento, nombre, etc...">
-                                </section>
-                                <section class="fraude-mini-cards">
-                                    <div class="mini-cards-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.7rem;">
-                                        <h3 style="margin:0;">Personas agregadas</h3>
-                                        <select id="ordenarMiniCards" style="max-width:22rem;">
-                                            <option value="fecha-desc">Fecha (más reciente primero)</option>
-                                            <option value="fecha-asc">Fecha (más antiguo primero)</option>
-                                            <option value="az">Nombre A-Z</option>
-                                            <option value="za">Nombre Z-A</option>
-                                        </select>
-                                    </div>
-                                    <div id="miniCardsContainer"></div>
-                                </section>
-                            </section>
-                        </section>
-                        
-                        <!-- COLUMNA LATERAL (derecha) -->
-                        <aside class="fraude-col lateral">
-                            <section id="bloqueados-estadisticas-container" class="section-container">
-                                <h3 class="section-title">Resumen de bloqueados</h3>
-                                <div id="bloqueados-resumen-cards" class="bloqueados-resumen-cards"></div>
-                                <div id="bloqueados-por-mes" class="bloqueados-por-mes"></div>
-                            </section>
-                        </aside>
+      <main id="mainContent">
+        <div id="module-content">
+          <!-- Contenido copiado y adaptado de modulos/form-fraudes/form-fraudes.html -->
+          <div class="fraude-main-root">
+            <div class="fraude-flex-root">
+              <!-- COLUMNA PRINCIPAL (izquierda) -->
+              <section class="fraude-col principal">
+                <section class="fraude-container">
+                  <header class="fraude-header">
+                    <h2>Registro de fraudes</h2>
+                    <a
+                      href="https://docs.google.com/spreadsheets/d/12mgWvEzfvBi6eYqDmY_Jmpdb00lp4r1FWvERuVhM7gY/edit?usp=sharing"
+                      target="_blank"
+                      class="btn-secundario"
+                      >Ver tabla</a
+                    >
+                  </header>
+                  <form id="fraude-form" autocomplete="off">
+                    <div class="form-grid grid-2col">
+                      <div
+                        class="campo"
+                        id="campo-no-logueado"
+                        style="
+                          grid-column: 1 / span 2;
+                          display: flex;
+                          align-items: center;
+                          gap: 1.6rem;
+                        "
+                      >
+                        <input
+                          type="checkbox"
+                          id="no_logueado"
+                          name="no_logueado"
+                        />
+                        <label for="no_logueado">No logueado?</label>
+                      </div>
+                      <div class="campo" id="campo-documento">
+                        <label for="documento">Documento</label>
+                        <input
+                          type="text"
+                          id="documento"
+                          name="documento"
+                          required
+                        />
+                      </div>
+                      <div class="campo">
+                        <label for="correo">Correo</label>
+                        <input
+                          type="email"
+                          id="correo"
+                          name="correo"
+                          required
+                        />
+                      </div>
+                      <div class="campo">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" id="nombre" name="nombre" required />
+                      </div>
+                      <div class="campo">
+                        <label for="comentarios">Comentarios (opcional)</label>
+                        <textarea
+                          id="comentarios"
+                          name="comentarios"
+                        ></textarea>
+                      </div>
+                      <div
+                        class="campo campo-full"
+                        style="grid-column: 1 / span 2"
+                      >
+                        <button type="submit" class="btn-primario">
+                          <span class="btn-text">Enviar</span>
+                          <span class="btn-spinner" style="display: none"
+                            ><span class="loader"></span
+                          ></span>
+                        </button>
+                      </div>
                     </div>
-                </div>
+                    <div class="mensaje" id="mensaje">
+                      ✅ ¡Reporte enviado con éxito!
+                    </div>
+                    <iframe name="hidden_iframe" style="display: none"></iframe>
+                  </form>
 
+                  <!-- Buscador y mini-cards -->
+                  <section class="fraude-buscador">
+                    <h3>Buscar en gestión de fraude</h3>
+                    <input
+                      type="text"
+                      id="buscadorFraude"
+                      placeholder="Buscar por documento, nombre, etc..."
+                    />
+                  </section>
+                  <section class="fraude-mini-cards">
+                    <div
+                      class="mini-cards-header"
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 0.7rem;
+                      "
+                    >
+                      <h3 style="margin: 0">Personas agregadas</h3>
+                      <select id="ordenarMiniCards" style="max-width: 22rem">
+                        <option value="fecha-desc">
+                          Fecha (más reciente primero)
+                        </option>
+                        <option value="fecha-asc">
+                          Fecha (más antiguo primero)
+                        </option>
+                        <option value="az">Nombre A-Z</option>
+                        <option value="za">Nombre Z-A</option>
+                      </select>
+                    </div>
+                    <div id="miniCardsContainer"></div>
+                  </section>
+                </section>
+              </section>
+
+              <!-- COLUMNA LATERAL (derecha) -->
+              <aside class="fraude-col lateral">
+                <section
+                  id="bloqueados-estadisticas-container"
+                  class="section-container"
+                >
+                  <h3 class="section-title">Resumen de bloqueados</h3>
+                  <div
+                    id="bloqueados-resumen-cards"
+                    class="bloqueados-resumen-cards"
+                  ></div>
+                  <div id="bloqueados-por-mes" class="bloqueados-por-mes"></div>
+                </section>
+              </aside>
             </div>
-        </main>
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- 4. Lógica del Módulo -->
     <script type="module" src="modulos/form-fraudes/form-fraudes.js"></script>
-
-</body>
+  </body>
 </html>
