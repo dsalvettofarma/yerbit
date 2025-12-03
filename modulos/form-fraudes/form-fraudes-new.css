@@ -441,7 +441,9 @@ form#fraude-form textarea {
   cursor: pointer;
   transition: all 0.2s;
 }
-
+.table-wrapper {
+  overflow-x: auto;
+}
 /* --- TABLA RESPONSIVE --- */
 .table-wrapper {
   background: var(--bg-panel);
