@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Whitelist - Yerbit</title>
+
+    <!-- 1. Estilos Globales -->
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- 2. Estilos del Módulo -->
+    <link rel="stylesheet" href="modulos/whitelist/whitelist.css" />
+
+    <!-- 3. Layout Manager -->
+    <script type="module" src="dashboard-layout.js"></script>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <main id="mainContent">
+        <div id="module-content">
+          <!-- Contenido copiado y adaptado de modulos/whitelist/whitelist.html -->
+          <div class="whitelist-main-root">
+            <!-- HEADER PRINCIPAL -->
+            <header class="whitelist-header-main">
+              <div class="header-content">
+                <h2>Gestión de Whitelist</h2>
+                <a
+                  href="https://docs.google.com/spreadsheets/d/12mgWvEzfvBi6eYqDmY_Jmpdb00lp4r1FWvERuVhM7gY/edit?usp=sharing"
+                  target="_blank"
+                  class="btn-secundario"
+                >
+                  <i class="ti ti-table"></i>
+                  Ver tabla
+                </a>
+              </div>
+            </header>
+
+            <!-- ACORDEÓN DE ESTADÍSTICAS -->
+            <section class="stats-accordion">
+              <button type="button" class="stats-toggle" id="statsToggle">
+                <div class="toggle-left">
+                  <i class="ti ti-heart"></i>
+                  <span>Resumen de clientes fieles</span>
+                  <span class="stats-badge" id="statsBadge">0</span>
+                </div>
+                <i class="ti ti-chevron-down toggle-icon"></i>
+              </button>
+              <div class="stats-content" id="statsContent">
+                <div class="stats-grid">
+                  <div class="stat-card">
+                    <div class="stat-value" id="statTotal">-</div>
+                    <div class="stat-label">Total clientes</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="statLogueados">-</div>
+                    <div class="stat-label">Con tarjetas</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="statNoLogueados">-</div>
+                    <div class="stat-label">Sin tarjetas</div>
+                  </div>
+                </div>
+                <div class="stats-timeline" id="statsTimeline"></div>
+              </div>
+            </section>
+
+            <div class="whitelist-container">
+              <section class="form-section">
+                <h3 class="section-title">
+                  <i class="ti ti-user-plus"></i>
+                  Agregar cliente a la whitelist
+                </h3>
+                <form id="whitelist-form" autocomplete="off">
+                  <div class="form-grid grid-2col">
+                    <div class="campo">
+                      <label for="documento">Documento *</label>
+                      <input
+                        type="text"
+                        id="documento"
+                        name="documento"
+                        placeholder="Ej: 12345678"
+                        required
+                      />
+                    </div>
+                    <div class="campo">
+                      <label for="correo">Correo *</label>
+                      <input
+                        type="email"
+                        id="correo"
+                        name="correo"
+                        placeholder="cliente@email.com"
+                        required
+                      />
+                    </div>
+                    <div class="campo">
+                      <label for="nombre">Nombre completo *</label>
+                      <input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        placeholder="Juan Pérez"
+                        required
+                      />
+                    </div>
+                    <div class="campo">
+                      <label for="telefono">Teléfono</label>
+                      <input
+                        type="tel"
+                        id="telefono"
+                        name="telefono"
+                        placeholder="099 123 456"
+                      />
+                    </div>
+                    <div class="campo campo-full">
+                      <label for="direccion"
+                        >Dirección de envío confiable *</label
+                      >
+                      <input
+                        type="text"
+                        id="direccion"
+                        name="direccion"
+                        placeholder="Calle 123, Apto 456, Ciudad"
+                        required
+                      />
+                    </div>
+                    <div class="campo campo-full">
+                      <label for="tarjetas"
+                        >Tarjetas (separadas por coma)</label
+                      >
+                      <input
+                        type="text"
+                        id="tarjetas"
+                        name="tarjetas"
+                        placeholder="1234, 5678, 9012 (últimos 4 dígitos de cada tarjeta)"
+                      />
+                      <small class="campo-ayuda"
+                        >💡 Ingresa los últimos 4 dígitos de cada tarjeta
+                        separados por coma</small
+                      >
+                    </div>
+                    <div class="campo campo-full">
+                      <label for="comentarios"
+                        >Comentarios adicionales (opcional)</label
+                      >
+                      <textarea
+                        id="comentarios"
+                        name="comentarios"
+                        placeholder="Información adicional sobre el cliente..."
+                      ></textarea>
+                    </div>
+                    <div class="campo campo-submit">
+                      <button type="submit" class="btn-primario">
+                        <span class="btn-text">Agregar</span>
+                        <span class="btn-spinner" style="display: none"
+                          ><span class="loader"></span
+                        ></span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mensaje" id="mensaje">
+                    ✅ ¡Cliente agregado con éxito!
+                  </div>
+                  <iframe name="hidden_iframe" style="display: none"></iframe>
+                </form>
+              </section>
+
+              <!-- LISTA DE CLIENTES -->
+              <section class="list-section">
+                <div class="list-header">
+                  <h3 class="section-title">
+                    <i class="ti ti-list"></i>
+                    Clientes en la whitelist
+                  </h3>
+                  <div class="list-controls">
+                    <div class="search-box">
+                      <i class="ti ti-search"></i>
+                      <input
+                        type="text"
+                        id="buscadorWhitelist"
+                        placeholder="Buscar por nombre, documento o correo..."
+                      />
+                    </div>
+                    <select id="ordenarWhitelist" class="sort-select">
+                      <option value="fecha-desc">Más reciente</option>
+                      <option value="fecha-asc">Más antiguo</option>
+                      <option value="az">A-Z</option>
+                      <option value="za">Z-A</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Tabla Responsive -->
+                <div class="table-wrapper">
+                  <table class="whitelist-table" id="whitelistTable">
+                    <thead>
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Documento</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Dirección</th>
+                        <th>Tarjetas</th>
+                        <th>Fecha</th>
+                        <th>Comentarios</th>
+                      </tr>
+                    </thead>
+                    <tbody id="whitelistTableBody">
+                      <!-- Contenido dinámico -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Vista Mobile (Cards) -->
+                <div class="mobile-cards" id="mobileCards">
+                  <!-- Contenido dinámico para mobile -->
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 4. Lógica del Módulo -->
+    <script type="module" src="modulos/whitelist/whitelist.js"></script>
+
+    <!-- Debug Script - Remover después de verificar -->
+    <script>
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          console.log("=== DEBUG INFO WHITELIST ===");
+          console.log(
+            "Buscador existe:",
+            !!document.getElementById("buscadorWhitelist")
+          );
+          console.log(
+            "Form existe:",
+            !!document.getElementById("whitelist-form")
+          );
+          console.log("==================");
+        }, 200);
+      });
+    </script>
+  </body>
+</html>

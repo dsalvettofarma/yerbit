@@ -1,22 +1,24 @@
 // API Gateway para centralizar todas las funcionalidades de Nova
 // Reemplaza las llamadas directas a Google Apps Script
 
-import { sheets } from './_lib/google-sheets.js';
+import { sheets } from "./_lib/google-sheets.js";
 
 // IDs de las hojas de cálculo (migrados desde Apps Script)
 const SPREADSHEET_IDS = {
-  TOKENS: '1mCzYzEruqrgoEQvmz7l5qIA4v-fRVkSkScXW5swNvnM',
-  ALERTAS: '1L1KvMg-rD3Lq90e5lMW-KZhg-dHOrsF-pa5SnlhZ-WI',
-  FRAUDES: '12mgWvEzfvBi6eYqDmY_Jmpdb00lp4r1FWvERuVhM7gY',
-  INSPECTOR: '1SBniJctF3j2nMt4M1IQWFkvjsKhCqJ_h6kqEtcvGdsg' 
+  TOKENS: "1mCzYzEruqrgoEQvmz7l5qIA4v-fRVkSkScXW5swNvnM",
+  ALERTAS: "1L1KvMg-rD3Lq90e5lMW-KZhg-dHOrsF-pa5SnlhZ-WI",
+  FRAUDES: "12mgWvEzfvBi6eYqDmY_Jmpdb00lp4r1FWvERuVhM7gY",
+  WHITELIST: "12mgWvEzfvBi6eYqDmY_Jmpdb00lp4r1FWvERuVhM7gY", // TODO: Crear nueva hoja de cálculo para whitelist
+  INSPECTOR: "1SBniJctF3j2nMt4M1IQWFkvjsKhCqJ_h6kqEtcvGdsg",
 };
 
 const SHEET_NAMES = {
-  SESSIONS: 'Sessions',
-  ALERTAS: 'Alertas',
-  LOG_EJECUCIONES: 'Log Ejecuciones',
-  CONFIG_ALERTAS: 'ConfiguracionAlertas',
-  FRAUDES: 'Fraudes'
+  SESSIONS: "Sessions",
+  ALERTAS: "Alertas",
+  LOG_EJECUCIONES: "Log Ejecuciones",
+  CONFIG_ALERTAS: "ConfiguracionAlertas",
+  FRAUDES: "Fraudes",
+  WHITELIST: "Whitelist",
 };
 
 // Cache temporal para sesiones (igual que en auth.js)
@@ -28,15 +30,15 @@ const sessionCache = new Map();
 function getUTC3Date() {
   const now = new Date();
   // Convertir a UTC y luego restar 3 horas para UTC-3
-  const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const utcMinus3 = new Date(utcTime + (-3 * 3600000));
-  
-  const day = String(utcMinus3.getDate()).padStart(2, '0');
-  const month = String(utcMinus3.getMonth() + 1).padStart(2, '0');
+  const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
+  const utcMinus3 = new Date(utcTime + -3 * 3600000);
+
+  const day = String(utcMinus3.getDate()).padStart(2, "0");
+  const month = String(utcMinus3.getMonth() + 1).padStart(2, "0");
   const year = utcMinus3.getFullYear();
-  const hours = String(utcMinus3.getHours()).padStart(2, '0');
-  const minutes = String(utcMinus3.getMinutes()).padStart(2, '0');
-  
+  const hours = String(utcMinus3.getHours()).padStart(2, "0");
+  const minutes = String(utcMinus3.getMinutes()).padStart(2, "0");
+
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
 
@@ -46,8 +48,8 @@ function getUTC3Date() {
 async function verificarSesion(email, token) {
   const cacheKey = `${email}:${token}`;
   const cached = sessionCache.get(cacheKey);
-  
-  if (cached && (Date.now() - cached.timestamp) < 8 * 60 * 60 * 1000) {
+
+  if (cached && Date.now() - cached.timestamp < 8 * 60 * 60 * 1000) {
     return cached.data;
   }
 
@@ -65,18 +67,21 @@ async function verificarSesion(email, token) {
       if (e === email && t === token) {
         const tokenTime = new Date(ts);
         const diffHours = (now - tokenTime) / (1000 * 60 * 60);
-        
+
         if (diffHours <= 8) {
           const sessionData = { valid: true, email, token, timestamp: ts };
-          sessionCache.set(cacheKey, { data: sessionData, timestamp: Date.now() });
+          sessionCache.set(cacheKey, {
+            data: sessionData,
+            timestamp: Date.now(),
+          });
           return sessionData;
         }
       }
     }
-    
+
     return { valid: false };
   } catch (error) {
-    console.error('Error verificando sesión:', error);
+    console.error("Error verificando sesión:", error);
     return { valid: false };
   }
 }
@@ -86,13 +91,13 @@ async function verificarSesion(email, token) {
  */
 async function handleAlertas(action, params) {
   switch (action) {
-    case 'getConfig':
+    case "getConfig":
       return await getConfigAlertas();
-    case 'updateConfig':
+    case "updateConfig":
       return await updateConfigAlertas(params);
-    case 'getAlertas':
+    case "getAlertas":
       return await getAlertas();
-    case 'addAlert':
+    case "addAlert":
       return await addAlert(params);
     default:
       throw new Error(`Acción no válida para alertas: ${action}`);
@@ -110,25 +115,25 @@ async function getConfigAlertas() {
     if (rows.length < 2) return { data: [] };
 
     const headers = rows[0];
-    const data = rows.slice(1).map(row => {
+    const data = rows.slice(1).map((row) => {
       const obj = {};
       headers.forEach((header, index) => {
-        obj[header] = row[index] || '';
+        obj[header] = row[index] || "";
       });
       return obj;
     });
 
     return { success: true, data };
   } catch (error) {
-    console.error('Error obteniendo configuración de alertas:', error);
-    throw new Error('Error obteniendo configuración de alertas');
+    console.error("Error obteniendo configuración de alertas:", error);
+    throw new Error("Error obteniendo configuración de alertas");
   }
 }
 
 async function updateConfigAlertas(params) {
   // Implementar actualización de configuración
   // Requiere más lógica específica basada en la estructura actual
-  return { success: true, message: 'Configuración actualizada' };
+  return { success: true, message: "Configuración actualizada" };
 }
 
 async function getAlertas() {
@@ -142,38 +147,38 @@ async function getAlertas() {
     if (rows.length < 2) return { data: [] };
 
     const headers = rows[0];
-    const data = rows.slice(1).map(row => {
+    const data = rows.slice(1).map((row) => {
       const obj = {};
       headers.forEach((header, index) => {
-        obj[header] = row[index] || '';
+        obj[header] = row[index] || "";
       });
       return obj;
     });
 
     return { success: true, data };
   } catch (error) {
-    console.error('Error obteniendo alertas:', error);
-    throw new Error('Error obteniendo alertas');
+    console.error("Error obteniendo alertas:", error);
+    throw new Error("Error obteniendo alertas");
   }
 }
 
 async function addAlert(params) {
   try {
     const { asunto, mensaje, fecha = getUTC3Date() } = params;
-    
+
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_IDS.ALERTAS,
       range: `${SHEET_NAMES.ALERTAS}!A:C`,
-      valueInputOption: 'RAW',
+      valueInputOption: "RAW",
       requestBody: {
-        values: [[asunto, mensaje, fecha]]
-      }
+        values: [[asunto, mensaje, fecha]],
+      },
     });
 
-    return { success: true, message: 'Alerta agregada correctamente' };
+    return { success: true, message: "Alerta agregada correctamente" };
   } catch (error) {
-    console.error('Error agregando alerta:', error);
-    throw new Error('Error agregando alerta');
+    console.error("Error agregando alerta:", error);
+    throw new Error("Error agregando alerta");
   }
 }
 
@@ -182,9 +187,9 @@ async function addAlert(params) {
  */
 async function handleFraudes(action, params) {
   switch (action) {
-    case 'list':
+    case "list":
       return await getFraudes();
-    case 'add':
+    case "add":
       return await addFraude(params);
     default:
       throw new Error(`Acción no válida para fraudes: ${action}`);
@@ -200,8 +205,8 @@ async function getFraudes() {
 
     return { success: true, data: response.data.values || [] };
   } catch (error) {
-    console.error('Error obteniendo fraudes:', error);
-    throw new Error('Error obteniendo fraudes');
+    console.error("Error obteniendo fraudes:", error);
+    throw new Error("Error obteniendo fraudes");
   }
 }
 
@@ -218,19 +223,25 @@ async function addFraude(params) {
     // Verificar duplicados
     const existing = await getFraudes();
     const data = existing.data || [];
-    
+
     let yaExiste = false;
     for (let i = 1; i < data.length; i++) {
       const docExistente = (data[i][0] || "").toString().trim();
-      const correoExistente = (data[i][1] || "").toString().trim().toLowerCase();
-      
+      const correoExistente = (data[i][1] || "")
+        .toString()
+        .trim()
+        .toLowerCase();
+
       if (documento === "No logueado") {
         if (correoExistente === correo.toLowerCase()) {
           yaExiste = true;
           break;
         }
       } else {
-        if (docExistente === documento || correoExistente === correo.toLowerCase()) {
+        if (
+          docExistente === documento ||
+          correoExistente === correo.toLowerCase()
+        ) {
           yaExiste = true;
           break;
         }
@@ -238,9 +249,9 @@ async function addFraude(params) {
     }
 
     if (yaExiste) {
-      return { 
-        success: false, 
-        message: "Ya existe un registro con ese documento o correo." 
+      return {
+        success: false,
+        message: "Ya existe un registro con ese documento o correo.",
       };
     }
 
@@ -248,7 +259,10 @@ async function addFraude(params) {
     const fecha = getUTC3Date();
 
     // Eliminar campo "apellido" y sanitizar todos los campos
-    const sanitizeField = (field) => String(field || '').replace(/\r?\n|\r/g, ' ').trim();
+    const sanitizeField = (field) =>
+      String(field || "")
+        .replace(/\r?\n|\r/g, " ")
+        .trim();
 
     const documentoSanitized = sanitizeField(documento);
     const correoSanitized = sanitizeField(correo);
@@ -260,23 +274,151 @@ async function addFraude(params) {
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_IDS.FRAUDES,
       range: `${SHEET_NAMES.FRAUDES}!A:F`, // Ajustar rango a 6 columnas
-      valueInputOption: 'RAW',
+      valueInputOption: "RAW",
       requestBody: {
-        values: [[
-          documentoSanitized,
-          correoSanitized,
-          nombreSanitized,
-          comentariosSanitized,
-          fechaSanitized,
-          logueadoSanitized
-        ]]
-      }
+        values: [
+          [
+            documentoSanitized,
+            correoSanitized,
+            nombreSanitized,
+            comentariosSanitized,
+            fechaSanitized,
+            logueadoSanitized,
+          ],
+        ],
+      },
     });
 
     return { success: true, message: "Registro agregado correctamente." };
   } catch (error) {
-    console.error('Error agregando fraude:', error);
-    throw new Error('Error agregando fraude');
+    console.error("Error agregando fraude:", error);
+    throw new Error("Error agregando fraude");
+  }
+}
+
+/**
+ * MÓDULO: WHITELIST
+ */
+async function handleWhitelist(action, params) {
+  switch (action) {
+    case "list":
+      return await getWhitelist();
+    case "add":
+      return await addWhitelist(params);
+    default:
+      throw new Error(`Acción no válida para whitelist: ${action}`);
+  }
+}
+
+async function getWhitelist() {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_IDS.WHITELIST,
+      range: `${SHEET_NAMES.WHITELIST}!A:K`, // A-K = 11 columnas
+    });
+
+    return { success: true, data: response.data.values || [] };
+  } catch (error) {
+    console.error("Error obteniendo whitelist:", error);
+    throw new Error("Error obteniendo whitelist");
+  }
+}
+
+async function addWhitelist(params) {
+  try {
+    const {
+      documento = "",
+      correo = "",
+      nombre = "",
+      telefono = "",
+      direccion = "",
+      tarjeta1 = "",
+      tarjeta2 = "",
+      tarjeta3 = "",
+      tarjeta4 = "",
+      comentarios = "",
+    } = params;
+
+    // Verificar duplicados por documento o correo
+    const existing = await getWhitelist();
+    const data = existing.data || [];
+
+    let yaExiste = false;
+    for (let i = 1; i < data.length; i++) {
+      const docExistente = (data[i][0] || "").toString().trim();
+      const correoExistente = (data[i][1] || "")
+        .toString()
+        .trim()
+        .toLowerCase();
+
+      if (
+        docExistente === documento ||
+        correoExistente === correo.toLowerCase()
+      ) {
+        yaExiste = true;
+        break;
+      }
+    }
+
+    if (yaExiste) {
+      return {
+        success: false,
+        message:
+          "Ya existe un cliente con ese documento o correo en la whitelist.",
+      };
+    }
+
+    // Agregar nuevo registro con fecha en UTC-3
+    const fecha = getUTC3Date();
+
+    // Sanitizar todos los campos
+    const sanitizeField = (field) =>
+      String(field || "")
+        .replace(/\r?\n|\r/g, " ")
+        .trim();
+
+    const documentoSanitized = sanitizeField(documento);
+    const correoSanitized = sanitizeField(correo);
+    const nombreSanitized = sanitizeField(nombre);
+    const telefonoSanitized = sanitizeField(telefono);
+    const direccionSanitized = sanitizeField(direccion);
+    const tarjeta1Sanitized = sanitizeField(tarjeta1);
+    const tarjeta2Sanitized = sanitizeField(tarjeta2);
+    const tarjeta3Sanitized = sanitizeField(tarjeta3);
+    const tarjeta4Sanitized = sanitizeField(tarjeta4);
+    const fechaSanitized = sanitizeField(fecha);
+    const comentariosSanitized = sanitizeField(comentarios);
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_IDS.WHITELIST,
+      range: `${SHEET_NAMES.WHITELIST}!A:K`, // A-K = 11 columnas
+      valueInputOption: "RAW",
+      requestBody: {
+        values: [
+          [
+            documentoSanitized,
+            correoSanitized,
+            nombreSanitized,
+            telefonoSanitized,
+            direccionSanitized,
+            tarjeta1Sanitized,
+            tarjeta2Sanitized,
+            tarjeta3Sanitized,
+            tarjeta4Sanitized,
+            fechaSanitized,
+            comentariosSanitized,
+          ],
+        ],
+      },
+    });
+
+    return {
+      success: true,
+      message: "Cliente agregado a la whitelist correctamente.",
+    };
+  } catch (error) {
+    console.error("Error agregando a whitelist:", error);
+    throw new Error("Error agregando a whitelist");
   }
 }
 
@@ -285,11 +427,11 @@ async function addFraude(params) {
  */
 async function handleInspector(action, params) {
   switch (action) {
-    case 'getSheets':
+    case "getSheets":
       return await getSheets(params.spreadsheetId);
-    case 'search':
+    case "search":
       return await searchInSheet(params);
-    case 'getData':
+    case "getData":
       return await getSheetData(params);
     default:
       throw new Error(`Acción no válida para inspector: ${action}`);
@@ -299,32 +441,42 @@ async function handleInspector(action, params) {
 async function getSheets(spreadsheetId = SPREADSHEET_IDS.INSPECTOR) {
   try {
     const response = await sheets.spreadsheets.get({
-      spreadsheetId
+      spreadsheetId,
     });
 
     // Extraer solo los nombres de las hojas para mantener compatibilidad con el frontend
-    const sheetNames = response.data.sheets.map(sheet => sheet.properties.title);
+    const sheetNames = response.data.sheets.map(
+      (sheet) => sheet.properties.title
+    );
 
     // Devolver en el formato que espera el frontend
     return { sheets: sheetNames };
   } catch (error) {
-    console.error('Error obteniendo hojas:', error);
-    throw new Error('Error obteniendo hojas del spreadsheet');
+    console.error("Error obteniendo hojas:", error);
+    throw new Error("Error obteniendo hojas del spreadsheet");
   }
 }
 
 async function searchInSheet(params) {
   try {
-    const { spreadsheetId = SPREADSHEET_IDS.INSPECTOR, sheet, column, value, matchType = 'contains' } = params;
+    const {
+      spreadsheetId = SPREADSHEET_IDS.INSPECTOR,
+      sheet,
+      column,
+      value,
+      matchType = "contains",
+    } = params;
 
     // Obtener metadatos de la hoja para saber la última columna
     const sheetMeta = await sheets.spreadsheets.get({ spreadsheetId });
-    const sheetInfo = sheetMeta.data.sheets.find(s => s.properties.title === sheet);
+    const sheetInfo = sheetMeta.data.sheets.find(
+      (s) => s.properties.title === sheet
+    );
     if (!sheetInfo) throw new Error(`Hoja '${sheet}' no encontrada`);
     const lastColIndex = sheetInfo.properties.gridProperties.columnCount;
     // Convertir índice a letra de columna (A, B, ..., Z, AA, AB, ...)
     function colIdxToLetter(idx) {
-      let letter = '';
+      let letter = "";
       while (idx > 0) {
         let rem = (idx - 1) % 26;
         letter = String.fromCharCode(65 + rem) + letter;
@@ -346,7 +498,7 @@ async function searchInSheet(params) {
     const headers = rows[0];
     let results = [];
 
-    if (column === 'todos' && value === '__all__') {
+    if (column === "todos" && value === "__all__") {
       // Devolver todos los datos como matriz de arrays (no objetos)
       results = rows.slice(1);
     } else {
@@ -356,18 +508,18 @@ async function searchInSheet(params) {
         throw new Error(`Columna '${column}' no encontrada`);
       }
 
-      results = rows.slice(1).filter(row => {
-        const cellValue = (row[columnIndex] || '').toString().toLowerCase();
+      results = rows.slice(1).filter((row) => {
+        const cellValue = (row[columnIndex] || "").toString().toLowerCase();
         const searchValue = value.toLowerCase();
-        
+
         switch (matchType) {
-          case 'exact':
+          case "exact":
             return cellValue === searchValue;
-          case 'starts':
+          case "starts":
             return cellValue.startsWith(searchValue);
-          case 'ends':
+          case "ends":
             return cellValue.endsWith(searchValue);
-          case 'contains':
+          case "contains":
           default:
             return cellValue.includes(searchValue);
         }
@@ -377,15 +529,19 @@ async function searchInSheet(params) {
     // Devolver en el formato que espera el frontend: { headers: [], results: [] }
     return { headers, results };
   } catch (error) {
-    console.error('Error en búsqueda:', error);
-    throw new Error('Error en búsqueda');
+    console.error("Error en búsqueda:", error);
+    throw new Error("Error en búsqueda");
   }
 }
 
 async function getSheetData(params) {
   try {
-    const { spreadsheetId = SPREADSHEET_IDS.INSPECTOR, sheet, range = 'A:Z' } = params;
-    
+    const {
+      spreadsheetId = SPREADSHEET_IDS.INSPECTOR,
+      sheet,
+      range = "A:Z",
+    } = params;
+
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
       range: `${sheet}!${range}`,
@@ -393,8 +549,8 @@ async function getSheetData(params) {
 
     return { success: true, data: response.data.values || [] };
   } catch (error) {
-    console.error('Error obteniendo datos de hoja:', error);
-    throw new Error('Error obteniendo datos de hoja');
+    console.error("Error obteniendo datos de hoja:", error);
+    throw new Error("Error obteniendo datos de hoja");
   }
 }
 
@@ -403,70 +559,74 @@ async function getSheetData(params) {
  */
 export default async function handler(req, res) {
   // CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     res.status(200).end();
     return;
   }
 
   try {
-    const { module, action, ...params } = req.method === 'GET' ? req.query : req.body;
-    
+    const { module, action, ...params } =
+      req.method === "GET" ? req.query : req.body;
+
     if (!module || !action) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Se requieren parámetros module y action' 
+      return res.status(400).json({
+        success: false,
+        message: "Se requieren parámetros module y action",
       });
     }
 
     // Verificar autenticación para módulos que lo requieren
-    const authRequiredModules = ['alertas'];
+    const authRequiredModules = ["alertas"];
     if (authRequiredModules.includes(module)) {
       const { email, token } = params;
       if (!email || !token) {
-        return res.status(401).json({ 
-          success: false, 
-          message: 'Se requiere autenticación (email y token)' 
+        return res.status(401).json({
+          success: false,
+          message: "Se requiere autenticación (email y token)",
         });
       }
 
       const session = await verificarSesion(email, token);
       if (!session.valid) {
-        return res.status(401).json({ 
-          success: false, 
-          message: 'Sesión inválida o expirada' 
+        return res.status(401).json({
+          success: false,
+          message: "Sesión inválida o expirada",
         });
       }
     }
 
     let result;
-    
+
     switch (module) {
-      case 'alertas':
+      case "alertas":
         result = await handleAlertas(action, params);
         break;
-      case 'fraudes':
+      case "fraudes":
         result = await handleFraudes(action, params);
         break;
-      case 'inspector':
+      case "whitelist":
+        result = await handleWhitelist(action, params);
+        break;
+      case "inspector":
         result = await handleInspector(action, params);
         break;
       default:
-        return res.status(400).json({ 
-          success: false, 
-          message: `Módulo no válido: ${module}` 
+        return res.status(400).json({
+          success: false,
+          message: `Módulo no válido: ${module}`,
         });
     }
 
     res.status(200).json(result);
   } catch (error) {
-    console.error('Error en API Gateway:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message || 'Error interno del servidor' 
+    console.error("Error en API Gateway:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Error interno del servidor",
     });
   }
 }

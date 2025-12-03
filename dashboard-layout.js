@@ -36,6 +36,13 @@ const MENU_ITEMS = [
     href: "form-fraudes.html",
   },
   {
+    id: "form-whitelist",
+    text: "Whitelist Clientes",
+    icon: "ti-heart",
+    roles: ["admin", "editor"],
+    href: "form-whitelist.html",
+  },
+  {
     id: "alertas",
     text: "Monitor Alertas",
     icon: "ti-bell",
