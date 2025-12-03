@@ -468,22 +468,22 @@ form#fraude-form textarea {
   color: var(--color-secondary);
   text-transform: uppercase;
   font-size: 0.85rem;
-  white-space: nowrap;
-  width: 1%;
   letter-spacing: 0.5px;
   border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+  width: 1%;
 }
 
-.fraudes-table tbody tr {
+.fraude-table tbody tr {
   border-bottom: 1px solid var(--border-color);
   transition: background 0.2s;
 }
 
-.fraudes-table tbody tr:hover {
+.fraude-table tbody tr:hover {
   background: var(--bg-hover);
 }
 
-.fraudes-table tbody tr:last-child {
+.fraude-table tbody tr:last-child {
   border-bottom: none;
 }
 
@@ -495,8 +495,13 @@ form#fraude-form textarea {
   width: 1%;
 }
 
-/* Columna nombre (3ra columna) puede crecer */
-.fraude-table td:nth-child(3) {
+.fraude-table td:first-child {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Columna nombre (1ra columna) puede crecer */
+.fraude-table td:nth-child(1) {
   width: auto;
   max-width: 300px;
   white-space: normal;
@@ -504,17 +509,11 @@ form#fraude-form textarea {
   text-overflow: ellipsis;
 }
 
-/* Columna fecha (4ta columna) siempre en una línea */
+/* Asegurar que todas las fechas estén en una línea */
 .fraude-table th:nth-child(4),
 .fraude-table td:nth-child(4) {
   white-space: nowrap;
   width: 1%;
-}
-
-.fraudes-table td:first-child {
-  font-weight: 600;
-  color: var(--text-primary);
-  width: 300px;
 }
 
 .table-empty {
