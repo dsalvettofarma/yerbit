@@ -165,5 +165,24 @@
 
     <!-- 4. Lógica del Módulo -->
     <script type="module" src="modulos/form-fraudes/form-fraudes.js"></script>
+
+    <!-- Debug Script - Remover después de verificar -->
+    <script>
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          console.log("=== DEBUG INFO ===");
+          console.log(
+            "Buscador existe:",
+            !!document.getElementById("buscadorFraude")
+          );
+          console.log(
+            "Container existe:",
+            !!document.getElementById("miniCardsContainer")
+          );
+          console.log("Form existe:", !!document.getElementById("fraude-form"));
+          console.log("==================");
+        }, 200);
+      });
+    </script>
   </body>
 </html>

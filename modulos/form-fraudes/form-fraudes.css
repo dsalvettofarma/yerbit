@@ -61,7 +61,7 @@ form#fraude-form label {
   color: #ccc;
 }
 label {
-    min-width: 70px;
+  min-width: 70px;
 }
 
 form#fraude-form input,
@@ -74,7 +74,9 @@ form#fraude-form select {
   color: #fff;
   font-size: var(--font-size-md);
   margin-bottom: 0.2rem;
-  transition: border 0.2s, box-shadow 0.2s;
+  transition:
+    border 0.2s,
+    box-shadow 0.2s;
 }
 form#fraude-form input:focus,
 form#fraude-form textarea:focus,
@@ -88,13 +90,13 @@ form#fraude-form textarea {
   resize: vertical;
   height: 35px;
 }
-input{
-    height: 35px;
+input {
+  height: 35px;
 }
-form#fraude-form .campo{
-    gap: 1rem;
-    border-bottom: solid 1px #616161;
-    padding-bottom: 4px;
+form#fraude-form .campo {
+  gap: 1rem;
+  border-bottom: solid 1px #616161;
+  padding-bottom: 4px;
 }
 .btn-primario {
   display: inline-flex;
@@ -131,12 +133,16 @@ form#fraude-form .campo{
 }
 
 @keyframes rotation {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .mensaje {
-  margin-top:1.6rem;
+  margin-top: 1.6rem;
   font-size: var(--font-size-md);
   font-weight: bold;
   color: #00cc99;
@@ -156,7 +162,7 @@ form#fraude-form .campo{
 .fraude-buscador {
   margin-top: 2rem;
   background: #232323;
-  padding:1.6rem;
+  padding: 1.6rem;
   border-radius: 6px;
   border: 1px solid #333;
 }
@@ -191,12 +197,18 @@ form#fraude-form .campo{
   min-width: 260px;
   max-width: 340px;
   color: #fff;
-  box-shadow: 0 4px 18px #0003, 0 1.5px 0 var(--color-secondary);
-  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow:
+    0 4px 18px #0003,
+    0 1.5px 0 var(--color-secondary);
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
   margin-bottom: 0.5rem;
 }
 .mini-card:hover {
-  box-shadow: 0 8px 32px #0005, 0 2px 0 var(--color-secondary);
+  box-shadow:
+    0 8px 32px #0005,
+    0 2px 0 var(--color-secondary);
   transform: translateY(-2px) scale(1.02);
 }
 .mini-card-avatar {
@@ -212,10 +224,10 @@ form#fraude-form .campo{
   border-radius: 50%;
 }
 
-
 /* Mejorar visual de select y checkboxes */
-select, input[type="checkbox"] {
- display: inline-flex;
+select,
+input[type="checkbox"] {
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   background-color: var(--color-secondary);
@@ -227,11 +239,12 @@ select, input[type="checkbox"] {
   cursor: pointer;
 }
 
-
 /* --- Layout y Sidebar Adaptativo --- */
 
 #layout-sidebar {
-  transition: width 0.2s, min-width 0.2s;
+  transition:
+    width 0.2s,
+    min-width 0.2s;
 }
 #layout-sidebar.hidden {
   width: 0 !important;
@@ -282,7 +295,7 @@ select, input[type="checkbox"] {
 @media (max-width: 700px) {
   .form-grid.grid-2col {
     grid-template-columns: 1fr;
-    gap:1.6rem;
+    gap: 1.6rem;
   }
   .form-grid .campo-full {
     grid-column: 1 / span 1;
@@ -376,7 +389,6 @@ select, input[type="checkbox"] {
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
-  
 }
 
 .bloqueados-mes-block {
@@ -408,15 +420,29 @@ select, input[type="checkbox"] {
   border: none;
   color: var(--color-secondary);
   cursor: pointer;
-  font-size:1.6rem;
+  font-size: 1.6rem;
   text-decoration: underline;
   padding: 0.25em 0.8em;
   border-radius: 3px;
-  transition: color 0.18s, background 0.18s;
+  transition:
+    color 0.18s,
+    background 0.18s;
 }
 .bloqueados-mes-vermas button:hover {
   color: #fff2ad;
   background: #232323;
+}
+
+/* Mensaje cuando no hay resultados de búsqueda */
+.mini-card-empty-msg {
+  padding: 2rem;
+  text-align: center;
+  color: #999;
+  font-size: var(--font-size-md);
+  background: #23242a;
+  border: 1px dashed #444;
+  border-radius: 6px;
+  margin: 1rem 0;
 }
 
 @media (max-width: 900px) {

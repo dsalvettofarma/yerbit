@@ -54,15 +54,28 @@ function formatFechaUTC3(fechaIso) {
 
 function renderMiniCards(data) {
   const container = document.getElementById("miniCardsContainer");
-  if (!container) return;
+  console.log(
+    "🎨 renderMiniCards llamado con",
+    data ? data.length : 0,
+    "items"
+  );
+  if (!container) {
+    console.error("❌ Container miniCardsContainer no encontrado");
+    return;
+  }
   container.innerHTML = "";
   if (!data || data.length === 0) {
+    console.log("⚠️ No hay datos para mostrar");
     const msg = document.createElement("div");
     msg.className = "mini-card-empty-msg";
     msg.textContent = "No se encontraron resultados para el filtro ingresado.";
+    msg.style.padding = "2rem";
+    msg.style.textAlign = "center";
+    msg.style.color = "#999";
     container.appendChild(msg);
     return;
   }
+  console.log("✅ Renderizando", data.length, "mini-cards");
   data.forEach((item) => {
     const card = document.createElement("div");
     card.className = "mini-card";
@@ -311,6 +324,12 @@ async function onEnter() {
   const ordenarSelect = document.getElementById("ordenarMiniCards");
   const buscador = document.getElementById("buscadorFraude");
 
+  console.log("🔍 Elementos obtenidos:", {
+    ordenarSelect: !!ordenarSelect,
+    buscador: !!buscador,
+    buscadorValue: buscador ? buscador.value : "NO ENCONTRADO",
+  });
+
   // Lógica para autocompletar documento cuando marca "No logueado"
   if (noLogueadoCheckbox && documentoInput) {
     function updateDocumentoField() {
@@ -335,7 +354,14 @@ async function onEnter() {
   let ordenActual = "fecha-desc";
   function renderFiltradoYOrdenado() {
     const filtro = buscador ? buscador.value : "";
+    console.log(
+      "🔍 Filtrando con:",
+      filtro,
+      "| Total personas:",
+      personas.length
+    );
     const filtradas = filtrarMiniCards(personas, filtro);
+    console.log("📊 Resultados filtrados:", filtradas.length);
     const ordenadas = ordenarMiniCards(filtradas, ordenActual);
     renderMiniCards(ordenadas);
   }
@@ -348,7 +374,13 @@ async function onEnter() {
     });
   }
   if (buscador) {
-    buscador.addEventListener("input", renderFiltradoYOrdenado);
+    console.log("✅ Agregando evento input al buscador");
+    buscador.addEventListener("input", (e) => {
+      console.log("🔍 Buscador input event:", e.target.value);
+      renderFiltradoYOrdenado();
+    });
+  } else {
+    console.error("❌ Buscador no encontrado en el DOM");
   }
 
   // Envío del formulario
@@ -541,9 +573,28 @@ function onLeave() {
 
 export { onEnter, onLeave };
 
-// Inicializar módulo de fraudes siempre que cargue la página
+// Inicializar el módulo cuando el DOM esté completamente listo
+// Esperamos un poco para que el layout manager termine de cargar el contenido
+function initModule() {
+  console.log("🔍 Intentando inicializar módulo form-fraudes...");
+  const buscador = document.getElementById("buscadorFraude");
+  if (buscador) {
+    console.log("✅ Buscador encontrado, inicializando módulo");
+    onEnter();
+  } else {
+    console.log("⏳ Buscador aún no disponible, esperando...");
+    // Reintentar después de un breve delay
+    setTimeout(initModule, 100);
+  }
+}
+
+// Ejecutar cuando el DOM esté listo
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", onEnter);
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("📄 DOMContentLoaded disparado");
+    setTimeout(initModule, 50);
+  });
 } else {
-  onEnter();
+  console.log("📄 DOM ya listo");
+  setTimeout(initModule, 50);
 }

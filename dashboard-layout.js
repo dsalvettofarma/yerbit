@@ -52,11 +52,11 @@ const MENU_ITEMS = [
   // === EJEMPLO DE ESQUELETO BASE ===
   // Copia y pega este bloque para agregar nuevos módulos
   {
-    id: "html-base",           // ID único para el módulo (usado internamente)
-    text: "HTML Base",         // Texto que aparece en el menú lateral
-    icon: "ti-template",       // Icono de Tabler Icons (busca en tabler-icons.io)
-    roles: ["admin"],          // Quién puede ver esto: 'admin', 'editor', 'viewer'
-    href: "html-base.html",    // El nombre EXACTO de tu archivo HTML
+    id: "html-base", // ID único para el módulo (usado internamente)
+    text: "HTML Base", // Texto que aparece en el menú lateral
+    icon: "ti-template", // Icono de Tabler Icons (busca en tabler-icons.io)
+    roles: ["admin"], // Quién puede ver esto: 'admin', 'editor', 'viewer'
+    href: "html-base.html", // El nombre EXACTO de tu archivo HTML
   },
 ];
 
@@ -150,10 +150,10 @@ function initializeEventListeners() {
     const savedTheme = localStorage.getItem("theme") || "dark";
     if (savedTheme === "light") {
       body.classList.add("light-theme");
-      document.documentElement.setAttribute('data-coreui-theme', 'light');
+      document.documentElement.setAttribute("data-coreui-theme", "light");
       themeIcon.classList.replace("ti-moon", "ti-sun");
     } else {
-      document.documentElement.setAttribute('data-coreui-theme', 'dark');
+      document.documentElement.setAttribute("data-coreui-theme", "dark");
       themeIcon.classList.replace("ti-sun", "ti-moon");
     }
 
@@ -161,9 +161,12 @@ function initializeEventListeners() {
       body.classList.toggle("light-theme");
       const isLight = body.classList.contains("light-theme");
       localStorage.setItem("theme", isLight ? "light" : "dark");
-      
+
       // Actualizar data-coreui-theme para módulos que lo usen
-      document.documentElement.setAttribute('data-coreui-theme', isLight ? 'light' : 'dark');
+      document.documentElement.setAttribute(
+        "data-coreui-theme",
+        isLight ? "light" : "dark"
+      );
 
       // Cambiar icono
       if (isLight) {
@@ -184,7 +187,9 @@ function initializeDashboard() {
   document.addEventListener("DOMContentLoaded", () => {
     const container = document.querySelector(".dashboard-container");
     if (!container) {
-      console.error('Error: Contenedor principal ".dashboard-container" no encontrado.');
+      console.error(
+        'Error: Contenedor principal ".dashboard-container" no encontrado.'
+      );
       return;
     }
 
@@ -198,7 +203,10 @@ function initializeDashboard() {
     layoutWrapper.innerHTML = headerHTML + sidebarHTML;
 
     while (layoutWrapper.firstChild) {
-      container.insertBefore(layoutWrapper.firstChild, container.querySelector("main"));
+      container.insertBefore(
+        layoutWrapper.firstChild,
+        container.querySelector("main")
+      );
     }
 
     // Adjuntar los listeners de eventos
@@ -221,11 +229,20 @@ function loadModuleContent() {
   // Detecta la ruta del archivo actual (incluyendo subdirectorios)
   const currentPath = window.location.pathname;
   const currentFile = currentPath.split("/").pop();
-  
+
   // Si es index.html, no hace falta cargar nada (ya está el contenido)
   if (currentFile === "index.html") return;
 
+  // IMPORTANTE: Si el contenido del módulo ya existe en el mainContent,
+  // no hace falta hacer fetch porque causaría que se pierdan los event listeners
+  const existingModuleContent = mainContent.querySelector("#module-content");
+  if (existingModuleContent && existingModuleContent.children.length > 0) {
+    console.log("✅ Contenido del módulo ya presente, no se hace fetch");
+    return;
+  }
+
   // Carga el HTML del módulo y lo inserta en mainContent
+  console.log("🔄 Cargando contenido del módulo desde:", currentPath);
   fetch(currentPath)
     .then((response) => response.text())
     .then((html) => {
@@ -235,6 +252,7 @@ function loadModuleContent() {
       const moduleContent = tempDiv.querySelector("#module-content");
       if (moduleContent) {
         mainContent.innerHTML = moduleContent.innerHTML;
+        console.log("✅ Contenido del módulo cargado desde fetch");
       }
     })
     .catch((err) => {
