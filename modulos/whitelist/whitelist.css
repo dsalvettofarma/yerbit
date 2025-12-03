@@ -529,6 +529,13 @@ form#whitelist-form textarea {
   text-overflow: ellipsis;
 }
 
+/* Asegurar que todas las fechas estén en una línea */
+.whitelist-table th:nth-child(4),
+.whitelist-table td:nth-child(4) {
+  white-space: nowrap;
+  width: 1%;
+}
+
 .table-empty {
   text-align: center;
   padding: 4rem 2rem;

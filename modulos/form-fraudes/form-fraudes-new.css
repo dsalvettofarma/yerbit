@@ -504,6 +504,13 @@ form#fraude-form textarea {
   text-overflow: ellipsis;
 }
 
+/* Columna fecha (4ta columna) siempre en una línea */
+.fraude-table th:nth-child(4),
+.fraude-table td:nth-child(4) {
+  white-space: nowrap;
+  width: 1%;
+}
+
 .fraudes-table td:first-child {
   font-weight: 600;
   color: var(--text-primary);
