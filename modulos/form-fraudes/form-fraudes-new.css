@@ -43,7 +43,7 @@
 }
 
 .fraude-header-main h2 {
-  font-size: 2.4rem;
+  font-size: 1.4rem;
   font-weight: 700;
   margin: 0;
   color: var(--text-primary);
@@ -55,13 +55,13 @@
 .btn-secundario {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 1.4rem;
+  gap: 0.5rem;
+  font-size: 0.95rem;
   background-color: var(--accent-primary);
   color: var(--text-inverse);
   border: 1px solid var(--accent-primary);
   border-radius: 6px;
-  padding: 0.8rem 1.4rem;
+  padding: 0.6rem 1rem;
   text-decoration: none;
   transition: all 0.2s;
   font-weight: 500;
@@ -90,9 +90,9 @@
   align-items: center;
   background: var(--bg-panel);
   border: none;
-  padding: 1.6rem 2rem;
+  padding: 1rem 1.5rem;
   color: var(--text-primary);
-  font-size: 1.6rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
@@ -113,21 +113,21 @@
 }
 
 .toggle-left i {
-  font-size: 2rem;
+  font-size: 1.1rem;
   color: var(--color-secondary);
 }
 
 .stats-badge {
   background: var(--color-secondary);
-  color: #000;
-  padding: 0.3rem 0.9rem;
+  color: #fff;
+  padding: 0.25rem 0.7rem;
   border-radius: 20px;
-  font-size: 1.3rem;
+  font-size: 0.85rem;
   font-weight: 700;
 }
 
 .toggle-icon {
-  font-size: 2rem;
+  font-size: 1.1rem;
   transition: transform 0.3s;
 }
 
@@ -170,14 +170,14 @@
 }
 
 .stat-value {
-  font-size: 3.2rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: var(--color-secondary);
   margin-bottom: 0.5rem;
 }
 
 .stat-label {
-  font-size: 1.3rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -210,7 +210,7 @@
 .timeline-count {
   color: var(--color-secondary);
   font-weight: 700;
-  font-size: 1.6rem;
+  font-size: 1rem;
 }
 
 /* --- SECCIÓN DE FORMULARIO --- */
@@ -221,8 +221,8 @@
 .section-title {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  font-size: 1.8rem;
+  gap: 0.6rem;
+  font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
   color: #fff;
@@ -230,7 +230,7 @@
 
 .section-title i {
   color: var(--color-secondary);
-  font-size: 2.2rem;
+  font-size: 1.3rem;
 }
 
 form#fraude-form {
@@ -279,7 +279,7 @@ form#fraude-form {
 }
 
 form#fraude-form label {
-  font-size: 1.4rem;
+  font-size: 0.95rem;
   font-weight: 500;
   color: var(--text-secondary);
   margin: 0;
@@ -289,12 +289,12 @@ form#fraude-form input:not([type="checkbox"]),
 form#fraude-form textarea,
 form#fraude-form select {
   width: 100%;
-  padding: 1rem 1.2rem;
+  padding: 0.7rem 1rem;
   background-color: var(--bg-input);
   border: 1.5px solid var(--border-color);
   border-radius: 6px;
   color: var(--text-primary);
-  font-size: 1.4rem;
+  font-size: 0.95rem;
   transition: all 0.2s;
 }
 
@@ -325,13 +325,13 @@ form#fraude-form textarea {
   display: flex !important;
   align-items: center;
   justify-content: center;
-  gap: 0.8rem;
+  gap: 0.6rem;
   background: var(--color-secondary) !important;
   color: #fff !important;
   border: none !important;
-  padding: 1.4rem 2.4rem !important;
+  padding: 0.9rem 1.8rem !important;
   border-radius: 8px !important;
-  font-size: 1.6rem !important;
+  font-size: 1.05rem !important;
   font-weight: 700 !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
@@ -413,21 +413,21 @@ form#fraude-form textarea {
 
 .search-box i {
   position: absolute;
-  left: 1.2rem;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
   color: #666;
-  font-size: 1.8rem;
+  font-size: 1.1rem;
 }
 
 .search-box input {
   width: 100%;
-  padding: 1rem 1.2rem 1rem 4rem;
+  padding: 0.7rem 1rem 0.7rem 3rem;
   background: var(--bg-panel);
   border: 1.5px solid var(--border-color);
   border-radius: 6px;
   color: var(--text-primary);
-  font-size: 1.4rem;
+  font-size: 0.95rem;
   transition: all 0.2s;
 }
 
@@ -462,23 +462,23 @@ form#fraude-form textarea {
   border: 1px solid var(--border-color);
 }
 
-.fraudes-table {
+.fraude-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 1.4rem;
+  font-size: 0.9rem;
 }
 
-.fraudes-table thead {
+.fraude-table thead {
   background: var(--bg-hover);
 }
 
-.fraudes-table th {
-  padding: 1.4rem 1.6rem;
+.fraude-table th {
+  padding: 1rem 1.2rem;
   text-align: left;
   font-weight: 600;
   color: var(--color-secondary);
   text-transform: uppercase;
-  font-size: 1.2rem;
+  font-size: 0.85rem;
   letter-spacing: 0.5px;
   border-bottom: 2px solid var(--border-color);
 }
@@ -496,8 +496,8 @@ form#fraude-form textarea {
   border-bottom: none;
 }
 
-.fraudes-table td {
-  padding: 1.4rem 1.6rem;
+.fraude-table td {
+  padding: 1rem 1.2rem;
   color: var(--text-primary);
   vertical-align: top;
 }
@@ -550,8 +550,8 @@ form#fraude-form textarea {
 }
 
 .mobile-card-avatar {
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--color-secondary);
   color: #fff;
@@ -559,19 +559,19 @@ form#fraude-form textarea {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.8rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
 }
 
 .mobile-card-name {
   font-weight: 600;
-  font-size: 1.6rem;
+  font-size: 1rem;
   color: var(--text-primary);
   margin-bottom: 0.3rem;
 }
 
 .mobile-card-email {
-  font-size: 1.3rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
 }
 
@@ -588,14 +588,14 @@ form#fraude-form textarea {
 }
 
 .mobile-card-label {
-  font-size: 1.2rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .mobile-card-value {
-  font-size: 1.4rem;
+  font-size: 0.95rem;
   color: var(--text-primary);
   font-weight: 500;
   text-align: right;
@@ -618,7 +618,7 @@ form#fraude-form textarea {
   }
 
   .fraude-header-main h2 {
-    font-size: 2rem;
+    font-size: 1.6rem;
   }
 
   .fraude-container {
@@ -668,20 +668,20 @@ form#fraude-form textarea {
   }
 
   .fraude-header-main h2 {
-    font-size: 1.8rem;
+    font-size: 1.2rem;
   }
 
   .btn-secundario {
-    font-size: 1.3rem;
-    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
   }
 
   .stat-value {
-    font-size: 2.6rem;
+    font-size: 1.5rem;
   }
 
   form#fraude-form {
-    padding: 1.5rem;
+    padding: 1.2rem;
   }
 
   .grid-2col {
@@ -689,13 +689,13 @@ form#fraude-form textarea {
   }
 
   .btn-primario {
-    font-size: 1.5rem;
-    padding: 1.2rem 2rem;
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
   }
 
   form#fraude-form input:not([type="checkbox"]),
   form#fraude-form textarea {
-    font-size: 1.6rem;
+    font-size: 0.95rem;
   }
 }
 
