@@ -510,8 +510,8 @@ form#fraude-form textarea {
 }
 
 /* Asegurar que todas las fechas estén en una línea */
-.fraude-table th:nth-child(4),
-.fraude-table td:nth-child(4) {
+.fraude-table th:nth-child(3),
+.fraude-table td:nth-child(3) {
   white-space: nowrap;
   width: 1%;
 }
@@ -743,7 +743,7 @@ form#fraude-form textarea {
   }
 }
 
-.fraudes-table tbody tr,
+.fraude-table tbody tr,
 .mobile-card {
   animation: fadeIn 0.3s ease-out;
 }
