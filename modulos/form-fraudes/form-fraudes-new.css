@@ -500,13 +500,10 @@ form#fraude-form textarea {
   color: var(--text-primary);
 }
 
-/* Columna nombre (1ra columna) puede crecer */
+/* Columna nombre (1ra columna) siempre en una línea */
 .fraude-table td:nth-child(1) {
-  width: auto;
-  max-width: 300px;
-  white-space: normal;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 1%;
 }
 
 /* Asegurar que todas las fechas estén en una línea */
