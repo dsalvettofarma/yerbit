@@ -17,7 +17,7 @@
     />
 
     <!-- 2. Estilos del Módulo -->
-    <link rel="stylesheet" href="modulos/form-fraudes/form-fraudes.css" />
+    <link rel="stylesheet" href="modulos/form-fraudes/form-fraudes-new.css" />
 
     <!-- 3. Layout Manager -->
     <script type="module" src="dashboard-layout.js"></script>
@@ -28,135 +28,151 @@
         <div id="module-content">
           <!-- Contenido copiado y adaptado de modulos/form-fraudes/form-fraudes.html -->
           <div class="fraude-main-root">
-            <div class="fraude-flex-root">
-              <!-- COLUMNA PRINCIPAL (izquierda) -->
-              <section class="fraude-col principal">
-                <section class="fraude-container">
-                  <header class="fraude-header">
-                    <h2>Registro de fraudes</h2>
-                    <a
-                      href="https://docs.google.com/spreadsheets/d/12mgWvEzfvBi6eYqDmY_Jmpdb00lp4r1FWvERuVhM7gY/edit?usp=sharing"
-                      target="_blank"
-                      class="btn-secundario"
-                      >Ver tabla</a
-                    >
-                  </header>
-                  <form id="fraude-form" autocomplete="off">
-                    <div class="form-grid grid-2col">
-                      <div
-                        class="campo"
-                        id="campo-no-logueado"
-                        style="
-                          grid-column: 1 / span 2;
-                          display: flex;
-                          align-items: center;
-                          gap: 1.6rem;
-                        "
-                      >
-                        <input
-                          type="checkbox"
-                          id="no_logueado"
-                          name="no_logueado"
-                        />
-                        <label for="no_logueado">No logueado?</label>
-                      </div>
-                      <div class="campo" id="campo-documento">
-                        <label for="documento">Documento</label>
-                        <input
-                          type="text"
-                          id="documento"
-                          name="documento"
-                          required
-                        />
-                      </div>
-                      <div class="campo">
-                        <label for="correo">Correo</label>
-                        <input
-                          type="email"
-                          id="correo"
-                          name="correo"
-                          required
-                        />
-                      </div>
-                      <div class="campo">
-                        <label for="nombre">Nombre</label>
-                        <input type="text" id="nombre" name="nombre" required />
-                      </div>
-                      <div class="campo">
-                        <label for="comentarios">Comentarios (opcional)</label>
-                        <textarea
-                          id="comentarios"
-                          name="comentarios"
-                        ></textarea>
-                      </div>
-                      <div
-                        class="campo campo-full"
-                        style="grid-column: 1 / span 2"
-                      >
-                        <button type="submit" class="btn-primario">
-                          <span class="btn-text">Enviar</span>
-                          <span class="btn-spinner" style="display: none"
-                            ><span class="loader"></span
-                          ></span>
-                        </button>
-                      </div>
-                    </div>
-                    <div class="mensaje" id="mensaje">
-                      ✅ ¡Reporte enviado con éxito!
-                    </div>
-                    <iframe name="hidden_iframe" style="display: none"></iframe>
-                  </form>
+            <!-- HEADER PRINCIPAL -->
+            <header class="fraude-header-main">
+              <div class="header-content">
+                <h2>Gestión de Fraudes</h2>
+                <a
+                  href="https://docs.google.com/spreadsheets/d/12mgWvEzfvBi6eYqDmY_Jmpdb00lp4r1FWvERuVhM7gY/edit?usp=sharing"
+                  target="_blank"
+                  class="btn-secundario"
+                >
+                  <i class="ti ti-table"></i>
+                  Ver tabla
+                </a>
+              </div>
+            </header>
 
-                  <!-- Buscador y mini-cards -->
-                  <section class="fraude-buscador">
-                    <h3>Buscar en gestión de fraude</h3>
-                    <input
-                      type="text"
-                      id="buscadorFraude"
-                      placeholder="Buscar por documento, nombre, etc..."
-                    />
-                  </section>
-                  <section class="fraude-mini-cards">
-                    <div
-                      class="mini-cards-header"
-                      style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 0.7rem;
-                      "
-                    >
-                      <h3 style="margin: 0">Personas agregadas</h3>
-                      <select id="ordenarMiniCards" style="max-width: 22rem">
-                        <option value="fecha-desc">
-                          Fecha (más reciente primero)
-                        </option>
-                        <option value="fecha-asc">
-                          Fecha (más antiguo primero)
-                        </option>
-                        <option value="az">Nombre A-Z</option>
-                        <option value="za">Nombre Z-A</option>
-                      </select>
+            <!-- ACORDEÓN DE ESTADÍSTICAS -->
+            <section class="stats-accordion">
+              <button type="button" class="stats-toggle" id="statsToggle">
+                <div class="toggle-left">
+                  <i class="ti ti-chart-bar"></i>
+                  <span>Resumen de bloqueados</span>
+                  <span class="stats-badge" id="statsBadge">206</span>
+                </div>
+                <i class="ti ti-chevron-down toggle-icon"></i>
+              </button>
+              <div class="stats-content" id="statsContent">
+                <div class="stats-grid">
+                  <div class="stat-card">
+                    <div class="stat-value" id="statTotal">-</div>
+                    <div class="stat-label">Total bloqueados</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="statLogueados">-</div>
+                    <div class="stat-label">Logueados</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="statNoLogueados">-</div>
+                    <div class="stat-label">No logueados</div>
+                  </div>
+                </div>
+                <div class="stats-timeline" id="statsTimeline"></div>
+              </div>
+            </section>
+
+            <div class="fraude-container">
+              <section class="form-section">
+                <h3 class="section-title">
+                  <i class="ti ti-plus-circle"></i>
+                  Registrar nuevo fraude
+                </h3>
+                <form id="fraude-form" autocomplete="off">
+                  <div class="form-grid grid-2col">
+                    <div class="campo campo-checkbox">
+                      <input
+                        type="checkbox"
+                        id="no_logueado"
+                        name="no_logueado"
+                      />
+                      <label for="no_logueado">No logueado?</label>
                     </div>
-                    <div id="miniCardsContainer"></div>
-                  </section>
-                </section>
+                    <div class="campo">
+                      <label for="documento">Documento</label>
+                      <input
+                        type="text"
+                        id="documento"
+                        name="documento"
+                        required
+                      />
+                    </div>
+                    <div class="campo">
+                      <label for="correo">Correo</label>
+                      <input type="email" id="correo" name="correo" required />
+                    </div>
+                    <div class="campo">
+                      <label for="nombre">Nombre</label>
+                      <input type="text" id="nombre" name="nombre" required />
+                    </div>
+                    <div class="campo">
+                      <label for="comentarios">Comentarios (opcional)</label>
+                      <textarea id="comentarios" name="comentarios"></textarea>
+                    </div>
+                    <div class="campo campo-submit">
+                      <button type="submit" class="btn-primario">
+                        <span class="btn-text">Enviar</span>
+                        <span class="btn-spinner" style="display: none"
+                          ><span class="loader"></span
+                        ></span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mensaje" id="mensaje">
+                    ✅ ¡Reporte enviado con éxito!
+                  </div>
+                  <iframe name="hidden_iframe" style="display: none"></iframe>
+                </form>
               </section>
 
-              <!-- COLUMNA LATERAL (derecha) -->
-              <aside class="fraude-col lateral">
-                <section
-                  id="bloqueados-estadisticas-container"
-                  class="section-container"
-                >
-                  <h3 class="section-title">Resumen de bloqueados</h3>
-                  <div
-                    id="bloqueados-resumen-cards"
-                    class="bloqueados-resumen-cards"
-                  ></div>
-                  <div id="bloqueados-por-mes" class="bloqueados-por-mes"></div>
-                </section>
-              </aside>
+              <!-- LISTA DE BLOQUEADOS -->
+              <section class="list-section">
+                <div class="list-header">
+                  <h3 class="section-title">
+                    <i class="ti ti-list"></i>
+                    Personas bloqueadas
+                  </h3>
+                  <div class="list-controls">
+                    <div class="search-box">
+                      <i class="ti ti-search"></i>
+                      <input
+                        type="text"
+                        id="buscadorFraude"
+                        placeholder="Buscar por nombre, documento o correo..."
+                      />
+                    </div>
+                    <select id="ordenarMiniCards" class="sort-select">
+                      <option value="fecha-desc">Más reciente</option>
+                      <option value="fecha-asc">Más antiguo</option>
+                      <option value="az">A-Z</option>
+                      <option value="za">Z-A</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Tabla Responsive -->
+                <div class="table-wrapper">
+                  <table class="fraudes-table" id="fraudesTable">
+                    <thead>
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Documento</th>
+                        <th>Correo</th>
+                        <th>Fecha de bloqueo</th>
+                        <th>Comentarios</th>
+                      </tr>
+                    </thead>
+                    <tbody id="fraudesTableBody">
+                      <!-- Contenido dinámico -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Vista Mobile (Cards) -->
+                <div class="mobile-cards" id="mobileCards">
+                  <!-- Contenido dinámico para mobile -->
+                </div>
+              </section>
             </div>
           </div>
         </div>

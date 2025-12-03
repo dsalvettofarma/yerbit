@@ -52,47 +52,87 @@ function formatFechaUTC3(fechaIso) {
   }
 }
 
-function renderMiniCards(data) {
-  const container = document.getElementById("miniCardsContainer");
-  console.log(
-    "🎨 renderMiniCards llamado con",
-    data ? data.length : 0,
-    "items"
-  );
-  if (!container) {
-    console.error("❌ Container miniCardsContainer no encontrado");
+// Renderizar tabla (desktop) y cards (mobile)
+function renderDataTable(data) {
+  const tableBody = document.getElementById("fraudesTableBody");
+  const mobileCards = document.getElementById("mobileCards");
+
+  console.log("🎨 Renderizando tabla con", data ? data.length : 0, "items");
+
+  if (!tableBody || !mobileCards) {
+    console.error("❌ Containers no encontrados");
     return;
   }
-  container.innerHTML = "";
+
+  // Limpiar contenedores
+  tableBody.innerHTML = "";
+  mobileCards.innerHTML = "";
+
   if (!data || data.length === 0) {
-    console.log("⚠️ No hay datos para mostrar");
-    const msg = document.createElement("div");
-    msg.className = "mini-card-empty-msg";
-    msg.textContent = "No se encontraron resultados para el filtro ingresado.";
-    msg.style.padding = "2rem";
-    msg.style.textAlign = "center";
-    msg.style.color = "#999";
-    container.appendChild(msg);
-    return;
-  }
-  console.log("✅ Renderizando", data.length, "mini-cards");
-  data.forEach((item) => {
-    const card = document.createElement("div");
-    card.className = "mini-card";
-    card.innerHTML = `
-      <div class="mini-card-header">
-        <div class="mini-card-avatar">${(item.nombre?.[0] || "").toUpperCase()}</div>
-        <div>
-          <strong>${item.nombre || "-"}</strong><br>
-          <span class="mini-card-mail">${item.correo || "-"}</span>
-        </div>
-      </div>
-      <div class="mini-card-body">
-        <span><b>Documento:</b> ${item.documento || "-"}</span><br>
-        <span><b>Fecha de bloqueo:</b> ${formatFechaUTC3(item.fecha)}</span>
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="5" class="table-empty">
+          <i class="ti ti-inbox"></i>
+          <div>No se encontraron resultados</div>
+        </td>
+      </tr>
+    `;
+    mobileCards.innerHTML = `
+      <div class="table-empty">
+        <i class="ti ti-inbox"></i>
+        <div>No se encontraron resultados</div>
       </div>
     `;
-    container.appendChild(card);
+    return;
+  }
+
+  console.log("✅ Renderizando", data.length, "registros");
+
+  // Renderizar tabla
+  data.forEach((item) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${item.nombre || "-"}</td>
+      <td>${item.documento || "-"}</td>
+      <td>${item.correo || "-"}</td>
+      <td>${formatFechaUTC3(item.fecha)}</td>
+      <td>${item.comentarios || "-"}</td>
+    `;
+    tableBody.appendChild(row);
+  });
+
+  // Renderizar cards mobile
+  data.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "mobile-card";
+    card.innerHTML = `
+      <div class="mobile-card-header">
+        <div class="mobile-card-avatar">${(item.nombre?.[0] || "").toUpperCase()}</div>
+        <div>
+          <div class="mobile-card-name">${item.nombre || "-"}</div>
+          <div class="mobile-card-email">${item.correo || "-"}</div>
+        </div>
+      </div>
+      <div class="mobile-card-row">
+        <span class="mobile-card-label">Documento</span>
+        <span class="mobile-card-value">${item.documento || "-"}</span>
+      </div>
+      <div class="mobile-card-row">
+        <span class="mobile-card-label">Fecha</span>
+        <span class="mobile-card-value">${formatFechaUTC3(item.fecha)}</span>
+      </div>
+      ${
+        item.comentarios
+          ? `
+      <div class="mobile-card-row">
+        <span class="mobile-card-label">Comentarios</span>
+        <span class="mobile-card-value">${item.comentarios}</span>
+      </div>
+      `
+          : ""
+      }
+    `;
+    mobileCards.appendChild(card);
   });
 }
 
@@ -226,11 +266,15 @@ async function fetchPersonas() {
     return [];
   }
 }
-// --- PANEL DE ESTADÍSTICAS DE BLOQUEADOS (solo cantidades) ---
+// --- PANEL DE ESTADÍSTICAS CON ACORDEÓN ---
 function renderBloqueadosStats(data) {
-  const resumenDiv = document.getElementById("bloqueados-resumen-cards");
-  const porMesDiv = document.getElementById("bloqueados-por-mes");
-  if (!resumenDiv || !porMesDiv) return;
+  const statTotal = document.getElementById("statTotal");
+  const statLogueados = document.getElementById("statLogueados");
+  const statNoLogueados = document.getElementById("statNoLogueados");
+  const statsBadge = document.getElementById("statsBadge");
+  const statsTimeline = document.getElementById("statsTimeline");
+
+  if (!statTotal || !statsTimeline) return;
 
   let total = data.length;
   let logueados = 0,
@@ -257,57 +301,34 @@ function renderBloqueadosStats(data) {
     }
   });
 
-  resumenDiv.innerHTML = `
-    <div class="bloqueados-resumen-card">
-      <div class="bloqueados-total">${total}</div>
-      <div class="bloqueados-label">Total bloqueados</div>
-    </div>
-    <div class="bloqueados-resumen-card">
-      <div class="bloqueados-total">${logueados}</div>
-      <div class="bloqueados-label">Logueados (con documento)</div>
-    </div>
-    <div class="bloqueados-resumen-card">
-      <div class="bloqueados-total">${noLogueados}</div>
-      <div class="bloqueados-label">No logueados</div>
-    </div>
-  `;
+  // Actualizar valores
+  statTotal.textContent = total;
+  statLogueados.textContent = logueados;
+  statNoLogueados.textContent = noLogueados;
+  statsBadge.textContent = total;
 
-  // Ordenar meses (descendente), solo mostrar 4 y luego "Ver más"
+  // Ordenar meses (descendente) y mostrar timeline
   const mesesOrdenados = Object.keys(bloqueadosPorMes).sort((a, b) =>
     b.localeCompare(a)
   );
-  let mostrarTodosMeses = false;
-  let htmlMeses = "";
-  mesesOrdenados.forEach((mesKey, idx) => {
-    if (!mostrarTodosMeses && idx >= 4) return;
-    htmlMeses += renderBloqueadosMesSimple(mesKey, bloqueadosPorMes[mesKey]);
+
+  let htmlTimeline = "";
+  mesesOrdenados.slice(0, 12).forEach((mesKey) => {
+    const [anio, mes] = mesKey.split("-");
+    const labelMes = new Date(anio, mes - 1).toLocaleDateString("es-ES", {
+      month: "short",
+      year: "numeric",
+    });
+    htmlTimeline += `
+      <div class="timeline-item">
+        <span class="timeline-month">${labelMes}</span>
+        <span class="timeline-count">${bloqueadosPorMes[mesKey]}</span>
+      </div>
+    `;
   });
-  if (mesesOrdenados.length > 4) {
-    htmlMeses += `<div class="bloqueados-mes-vermas"><button type="button" id="btn-ver-mas-bloqueados">Ver más</button></div>`;
-  }
-  porMesDiv.innerHTML = htmlMeses;
 
-  const btnVerMas = document.getElementById("btn-ver-mas-bloqueados");
-  if (btnVerMas) {
-    btnVerMas.onclick = () => {
-      porMesDiv.innerHTML = mesesOrdenados
-        .map((mesKey) =>
-          renderBloqueadosMesSimple(mesKey, bloqueadosPorMes[mesKey])
-        )
-        .join("");
-    };
-  }
-}
-
-function renderBloqueadosMesSimple(mesKey, cantidad) {
-  const [anio, mes] = mesKey.split("-");
-  const labelMes = `${mes}/${anio}`;
-  return `
-    <div class="bloqueados-mes-block">
-      <div class="bloqueados-mes-titulo">${labelMes}</div>
-      <div class="bloqueados-cantidad">Cantidad: <b>${cantidad}</b></div>
-    </div>
-  `;
+  statsTimeline.innerHTML =
+    htmlTimeline || `<div class="timeline-item"><span>Sin datos</span></div>`;
 }
 
 async function onEnter() {
@@ -347,6 +368,17 @@ async function onEnter() {
     updateDocumentoField(); // Inicializar
   }
 
+  // Inicializar acordeón de estadísticas
+  const statsToggle = document.getElementById("statsToggle");
+  const statsContent = document.getElementById("statsContent");
+
+  if (statsToggle && statsContent) {
+    statsToggle.addEventListener("click", () => {
+      statsToggle.classList.toggle("active");
+      statsContent.classList.toggle("open");
+    });
+  }
+
   // Obtener datos reales
   let personas = await fetchPersonas();
   renderBloqueadosStats(personas);
@@ -363,7 +395,7 @@ async function onEnter() {
     const filtradas = filtrarMiniCards(personas, filtro);
     console.log("📊 Resultados filtrados:", filtradas.length);
     const ordenadas = ordenarMiniCards(filtradas, ordenActual);
-    renderMiniCards(ordenadas);
+    renderDataTable(ordenadas);
   }
   renderFiltradoYOrdenado();
   if (ordenarSelect) {
