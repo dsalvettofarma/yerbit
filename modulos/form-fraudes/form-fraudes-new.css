@@ -4,9 +4,9 @@
 
 /* Variables específicas del módulo */
 :root {
-  --color-secondary: #ffc107;
-  --color-secondary-hover: #ffca28;
-  --color-secondary-dark: #ff9800;
+  --color-secondary: #014694;
+  --color-secondary-hover: #0159b3;
+  --color-secondary-dark: #013366;
 }
 
 /* --- LAYOUT PRINCIPAL --- */
@@ -166,7 +166,7 @@
 .stat-card:hover {
   border-color: var(--color-secondary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+  box-shadow: 0 4px 12px rgba(1, 70, 148, 0.2);
 }
 
 .stat-value {
@@ -310,7 +310,7 @@ form#fraude-form textarea:focus,
 form#fraude-form select:focus {
   border-color: var(--color-secondary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.15);
+  box-shadow: 0 0 0 3px rgba(1, 70, 148, 0.15);
   background-color: var(--bg-panel);
 }
 
@@ -327,7 +327,7 @@ form#fraude-form textarea {
   justify-content: center;
   gap: 0.8rem;
   background: var(--color-secondary) !important;
-  color: #000 !important;
+  color: #fff !important;
   border: none !important;
   padding: 1.4rem 2.4rem !important;
   border-radius: 8px !important;
@@ -337,7 +337,7 @@ form#fraude-form textarea {
   transition: all 0.2s ease !important;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(1, 70, 148, 0.3) !important;
   font-family: inherit !important;
   line-height: 1.5 !important;
 }
@@ -345,12 +345,12 @@ form#fraude-form textarea {
 .btn-primario:hover:not(:disabled) {
   background: var(--color-secondary-hover) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 16px rgba(255, 193, 7, 0.5) !important;
+  box-shadow: 0 6px 16px rgba(1, 70, 148, 0.5) !important;
 }
 
 .btn-primario:active:not(:disabled) {
   transform: translateY(0) !important;
-  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3) !important;
+  box-shadow: 0 2px 4px rgba(1, 70, 148, 0.3) !important;
 }
 
 .btn-primario:disabled {
@@ -434,7 +434,7 @@ form#fraude-form textarea {
 .search-box input:focus {
   border-color: var(--color-secondary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.15);
+  box-shadow: 0 0 0 3px rgba(1, 70, 148, 0.15);
   background: var(--bg-input);
 }
 
@@ -537,7 +537,7 @@ form#fraude-form textarea {
 .mobile-card:hover {
   border-color: var(--color-secondary);
   transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+  box-shadow: 0 4px 12px rgba(1, 70, 148, 0.2);
 }
 
 .mobile-card-header {
@@ -554,7 +554,7 @@ form#fraude-form textarea {
   height: 48px;
   border-radius: 50%;
   background: var(--color-secondary);
-  color: #000;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
