@@ -12,11 +12,11 @@
   height: 100vh;
   overflow: visible; /* Evita scroll interno vertical */
 }
-header.header-section-title{
-  background:none;
+header.header-section-title {
+  background: none;
 }
 .header-section-title {
-  font-size: var(--font-size-xxl, 1.75rem);
+  font-size: 1.4rem;
   font-weight: var(--font-weight-bold, 700);
   color: var(--color-on-background);
   text-align: center;
@@ -31,15 +31,14 @@ header.header-section-title{
 }
 
 .monitor-alertas-root .section-title {
-  font-size: var(--font-size-xl, 1.25rem);
+  font-size: 1.1rem;
   font-weight: var(--font-weight-semibold, 600);
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   color: var(--color-on-surface);
 }
 
 .monitor-alertas-root .section-title-alertas {
   color: var(--color-error); /* Rojo para destacar "alertas" */
-  
 }
 .monitor-alertas-root .section-title-historial {
   color: var(--color-secondary); /* Azul/otro color para historial */
@@ -56,20 +55,23 @@ header.header-section-title{
   padding: 0.7rem 1.2rem;
   border-radius: var(--border-radius-medium);
   border-left: 5px solid var(--color-error);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out, max-height 0.5s ease-out;
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out,
+    max-height 0.5s ease-out;
   max-height: 140px;
   overflow: hidden;
 }
 .monitor-alertas-root .alerta-item p {
   margin: 0.15rem 0;
-  font-size: var(--font-size-lg, 0.95rem);
+  font-size: 0.85rem;
 }
 .monitor-alertas-root .alerta-item .alerta-timestamp {
-  font-size: var(--font-size-md, 0.85rem);
+  font-size: 0.8rem;
   color: var(--color-on-surface-variant);
 }
 .monitor-alertas-root .alerta-item .alerta-asunto {
@@ -116,10 +118,10 @@ header.header-section-title{
 .monitor-alertas-root .sheet-button {
   background-color: var(--color-tertiary);
   color: var(--color-on-tertiary);
-  padding: 0.5rem 1rem;
+  padding: 0.45rem 0.9rem;
   border-radius: var(--border-radius-medium);
   text-decoration: none;
-  font-size: var(--font-size-lg, 0.9rem);
+  font-size: 0.85rem;
   font-weight: var(--font-weight-medium, 500);
   display: inline-flex;
   align-items: center;
@@ -127,9 +129,13 @@ header.header-section-title{
   transition: background-color var(--transition-duration);
 }
 .monitor-alertas-root .sheet-button:hover {
-  background-color: var(--color-tertiary); /* Podrías usar una variable -variant */
+  background-color: var(
+    --color-tertiary
+  ); /* Podrías usar una variable -variant */
   filter: brightness(0.95);
-  color: var(--color-on-tertiary); /* Asegurar que el color del texto no cambie en hover */
+  color: var(
+    --color-on-tertiary
+  ); /* Asegurar que el color del texto no cambie en hover */
 }
 .monitor-alertas-root .sheet-button i {
   font-size: 1em; /* Ajustar tamaño del ícono si es necesario */
@@ -160,7 +166,7 @@ header.header-section-title{
 
 .monitor-alertas-root .data-table th:last-child,
 .monitor-alertas-root .data-table td:last-child {
-    border-right: none;
+  border-right: none;
 }
 /* --- CORRECCIÓN 2: Definición de anchos de columna --- */
 .monitor-alertas-root .data-table .col-index {
@@ -190,10 +196,9 @@ header.header-section-title{
 }
 
 .monitor-alertas-root .data-table td:last-child {
-    /* Podrías añadir text-align: right; o center; si es una columna de acciones */
-text-align: right;
+  /* Podrías añadir text-align: right; o center; si es una columna de acciones */
+  text-align: right;
 }
-
 
 .monitor-alertas-root .data-table thead tr {
   background-color: var(--color-surface-container-hover);
@@ -245,11 +250,14 @@ text-align: right;
   padding: 0.7rem 1.2rem; /* Ajustar padding */
   border-radius: var(--border-radius-medium);
   border-left: 5px solid var(--color-error); /* Borde izquierdo rojo más grueso */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
   display: flex; /* Para alinear contenido y botón */
   justify-content: space-between;
   align-items: center;
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out, max-height 0.5s ease-out; /* Para animación de salida */
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out,
+    max-height 0.5s ease-out; /* Para animación de salida */
   max-height: 140px; /* Altura inicial para animación de colapso */
   overflow: hidden;
 }
@@ -265,14 +273,13 @@ text-align: right;
   border-width: 0; /* Ocultar bordes durante la animación */
 }
 
-
 .monitor-alertas-root .alerta-contenido {
   flex-grow: 1;
-  min-width: 0; 
+  min-width: 0;
 }
 
 .monitor-alertas-root .alerta-asunto-display {
-  font-size: var(--font-size-lg, 0.95rem);
+  font-size: 0.9rem;
   font-weight: var(--font-weight-semibold, 600);
   color: var(--color-on-surface);
   margin-bottom: 0.15rem;
@@ -282,7 +289,7 @@ text-align: right;
 }
 
 .monitor-alertas-root .alerta-fecha-display {
-  font-size: var(--font-size-md, 0.85rem);
+  font-size: 0.8rem;
   color: var(--color-on-surface-variant);
 }
 
@@ -292,11 +299,13 @@ text-align: right;
 }
 
 .monitor-alertas-root .btn-marcar-revisado {
-  background-color: var(--color-primary); /* Un color que no sea el rojo de la alerta */
+  background-color: var(
+    --color-primary
+  ); /* Un color que no sea el rojo de la alerta */
   color: var(--color-on-primary);
   border: none;
-  padding: 0.5rem 1.5rem;
-  font-size: var(--font-size-lg, 0.9rem);
+  padding: 0.45rem 1.2rem;
+  font-size: 0.85rem;
   border-radius: var(--border-radius-small);
   cursor: pointer;
   display: inline-flex;
@@ -310,10 +319,9 @@ text-align: right;
   font-size: 1em; /* Icono un poco más pequeño que el texto */
 }
 .monitor-alertas-root .btn-marcar-revisado:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+  opacity: 0.7;
+  cursor: not-allowed;
 }
-
 
 .monitor-alertas-root .revisado-texto {
   font-size: var(--font-size-lg, 0.9rem);
@@ -336,7 +344,9 @@ text-align: right;
   z-index: 1050; /* Encima de otros contenidos */
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s;
+  transition:
+    opacity 0.3s ease-in-out,
+    visibility 0s linear 0.3s;
 }
 
 .modal-overlay:not(.hidden) {
@@ -346,10 +356,13 @@ text-align: right;
 }
 
 .modal-dialog {
-  background-color: var(--color-surface, #fff); /* Usar variable de tema o blanco */
+  background-color: var(
+    --color-surface,
+    #fff
+  ); /* Usar variable de tema o blanco */
   padding: 1.2rem 1.5rem;
   border-radius: var(--border-radius-large, 8px);
-  box-shadow: var(--box-shadow-xlarge, 0 8px 24px rgba(0,0,0,0.15));
+  box-shadow: var(--box-shadow-xlarge, 0 8px 24px rgba(0, 0, 0, 0.15));
   width: 90%;
   max-width: 700px; /* Ancho máximo del modal */
   max-height: 75vh; /* Altura máxima, permite scroll si es más alto */
@@ -360,7 +373,7 @@ text-align: right;
 }
 
 .modal-overlay:not(.hidden) .modal-dialog {
-    transform: scale(1);
+  transform: scale(1);
 }
 
 .modal-header {
@@ -395,7 +408,8 @@ text-align: right;
 .modal-body-content {
   overflow-y: auto; /* Habilita scroll si el contenido es muy largo */
   white-space: pre-wrap; /* Conserva saltos de línea y espacios del email */
-  font-family: 'Menlo', 'Monaco', 'Consolas', "Courier New", monospace; /* Mejor para texto crudo */
+  font-family:
+    "Menlo", "Monaco", "Consolas", "Courier New", monospace; /* Mejor para texto crudo */
   font-size: var(--font-size-lg, 0.9rem); /* Ligeramente más pequeño */
   line-height: 1.5;
   color: var(--color-on-surface, #333);
@@ -403,19 +417,24 @@ text-align: right;
 }
 
 .modal-parsed-data {
-    /* Estilos para la sección de datos parseados (Fase 2) */
-    border-top: 1px solid var(--color-outline, #eee);
-    padding-top: 0.7rem;
-    font-size: var(--font-size-md, 0.85rem);
+  /* Estilos para la sección de datos parseados (Fase 2) */
+  border-top: 1px solid var(--color-outline, #eee);
+  padding-top: 0.7rem;
+  font-size: var(--font-size-md, 0.85rem);
 }
 
 .highlighted-keyword {
-  background-color: rgba(255, 230, 100, 0.7); /* Amarillo claro semitransparente */
+  background-color: rgba(
+    255,
+    230,
+    100,
+    0.7
+  ); /* Amarillo claro semitransparente */
   font-weight: bold;
   padding: 0.1em 0.2em;
   border-radius: 3px;
   /* Para el subrayado con color: */
-  /* border-bottom: 2px solid var(--color-error, red); */ 
+  /* border-bottom: 2px solid var(--color-error, red); */
   /* O usar text-decoration si prefieres: */
   text-decoration: underline;
   text-decoration-color: var(--color-error, red);
@@ -428,65 +447,67 @@ text-align: right;
 /* ... (tus otros estilos del modal) ... */
 
 .texto-destacado-modal {
-  background-color: #FFD700; /* Un amarillo dorado, por ejemplo */
+  background-color: #ffd700; /* Un amarillo dorado, por ejemplo */
   color: #333; /* Color de texto oscuro para contraste */
   font-weight: bold;
   padding: 0.1em 0.2em;
   border-radius: 3px;
 }
-.texto-a-ocultar{
+.texto-a-ocultar {
   display: none;
-} 
+}
 
 /* --- NUEVOS ESTILOS PARA LA LEYENDA --- */
 .historial-legend {
-    font-size: var(--font-size-lg, 0.9rem);
-    color: var(--color-on-surface-variant);
-    background-color: var(--color-surface-container);
-    padding: 0.7rem 1rem;
-    border-radius: var(--border-radius-small);
-    margin-bottom: 1rem;
-    border-left: 3px solid var(--color-secondary);
+  font-size: var(--font-size-lg, 0.9rem);
+  color: var(--color-on-surface-variant);
+  background-color: var(--color-surface-container);
+  padding: 0.7rem 1rem;
+  border-radius: var(--border-radius-small);
+  margin-bottom: 1rem;
+  border-left: 3px solid var(--color-secondary);
 }
 .historial-legend p {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.3rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
 }
 .estado-tag {
-    font-weight: var(--font-weight-semibold);
-    padding: 0.1em 0.3em;
-    border-radius: 3px;
-    font-size: var(--font-size-lg, 0.85rem);
+  font-weight: var(--font-weight-semibold);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-size: var(--font-size-lg, 0.85rem);
 }
 .estado-tag.positivo {
-    background-color: var(--color-error-container);
-    color: var(--color-on-error-container);
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
 }
 .estado-tag.negativo {
-    background-color: var(--color-surface-container-hover);
-    color: var(--color-on-surface-variant);
+  background-color: var(--color-surface-container-hover);
+  color: var(--color-on-surface-variant);
 }
 .info-icon {
-    color: var(--color-info, #17a2b8);
-    font-size: 1.1em;
-    vertical-align: middle;
+  color: var(--color-info, #17a2b8);
+  font-size: 1.1em;
+  vertical-align: middle;
 }
 
 /* --- AJUSTES EN LA TABLA --- */
 
 /* Estilo para el ícono de información en la tabla */
 .info-disparo-icon {
-    cursor: help; /* Cambiar cursor para indicar que es informativo */
-    color: var(--color-secondary);
-    font-size: 1.1em; /* Hacerlo un poco más grande */
-    transition: color 0.2s, transform 0.2s;
+  cursor: help; /* Cambiar cursor para indicar que es informativo */
+  color: var(--color-secondary);
+  font-size: 1.1em; /* Hacerlo un poco más grande */
+  transition:
+    color 0.2s,
+    transform 0.2s;
 }
 .info-disparo-icon:hover {
-    color: var(--color-secondary-variant);
-    transform: scale(1.05);
+  color: var(--color-secondary-variant);
+  transform: scale(1.05);
 }
 /* --- SECCIÓN DE LA TABLA CORREGIDA --- */
 .monitor-alertas-root .table-responsive-container {
@@ -548,40 +569,42 @@ text-align: right;
   color: var(--color-on-surface-variant); /* Color sutil para "Negativo" */
 }
 .monitor-alertas-root .data-table .revisado-si {
-   color: var(--color-success-container); 
-   font-weight: var(--font-weight-medium);
+  color: var(--color-success-container);
+  font-weight: var(--font-weight-medium);
 }
 .monitor-alertas-root .data-table .revisado-no {
-   color: var(--color-warning-container);
-   font-weight: var(--font-weight-medium);
+  color: var(--color-warning-container);
+  font-weight: var(--font-weight-medium);
 }
 
 /* Estilo para el ícono de información en la tabla */
 .info-disparo-icon {
-    cursor: help;
-    color: var(--color-secondary);
-    font-size: 1.1em;
-    transition: color 0.2s, transform 0.2s;
+  cursor: help;
+  color: var(--color-secondary);
+  font-size: 1.1em;
+  transition:
+    color 0.2s,
+    transform 0.2s;
 }
 .info-disparo-icon:hover {
-    color: var(--color-secondary-variant);
-    transform: scale(1.05);
+  color: var(--color-secondary-variant);
+  transform: scale(1.05);
 }
 .motivo-alerta-modal {
-    background: var(--color-surface-container-hover, #23272b);
-    color: var(--color-on-surface, #f1f1f1);
-    border-left: 3px solid var(--color-secondary, #40a9ff);
-    padding: 0.7rem 1.2rem;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-    font-size: var(--font-size-lg, 0.9rem);
-    display: flex;
-    align-items: center;
-    gap: 0.4em;
+  background: var(--color-surface-container-hover, #23272b);
+  color: var(--color-on-surface, #f1f1f1);
+  border-left: 3px solid var(--color-secondary, #40a9ff);
+  padding: 0.7rem 1.2rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: var(--font-size-lg, 0.9rem);
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
 }
 .motivo-alerta-modal i {
-    color: var(--color-secondary, #40a9ff);
-    font-size: 1.1em;
+  color: var(--color-secondary, #40a9ff);
+  font-size: 1.1em;
 }
 .datos-parseados {
   background: #1e2329;
@@ -604,16 +627,69 @@ text-align: right;
   cursor: not-allowed;
 }
 
-
 .hidden {
   display: none !important;
 }
 
+/* --- Estilos de paginación --- */
+#historial-paginado-container {
+  margin-top: 15px;
+  padding: 10px 0;
+}
+
+.paginacion-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.btn-paginacion {
+  padding: 8px 16px;
+  background-color: var(--color-primary, #1890ff);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-paginacion:hover:not(:disabled) {
+  background-color: var(--color-primary-dark, #096dd9);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-paginacion:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.paginacion-info {
+  font-size: 0.9rem;
+  color: var(--color-on-surface-variant);
+  font-weight: 500;
+  padding: 8px 16px;
+  background-color: var(--color-surface-container);
+  border-radius: 6px;
+}
+
+html[data-coreui-theme="dark"] .paginacion-info {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
 /* Elimina scroll vertical del root y del main-content, solo el body/html puede scrollear */
-.monitor-alertas-root, #main-content {
+.monitor-alertas-root,
+#main-content {
   overflow-y: visible !important;
   scrollbar-width: none;
 }
-.monitor-alertas-root::-webkit-scrollbar, #main-content::-webkit-scrollbar {
+.monitor-alertas-root::-webkit-scrollbar,
+#main-content::-webkit-scrollbar {
   display: none;
 }
