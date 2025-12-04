@@ -427,6 +427,9 @@ async function addWhitelist(params) {
  */
 async function handleInspector(action, params) {
   switch (action) {
+    case "ping":
+      // Respuesta rápida para comprobar que el gateway responde (no toca Google Sheets)
+      return { success: true, message: "pong" };
     case "getSheets":
       return await getSheets(params.spreadsheetId);
     case "search":

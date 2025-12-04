@@ -48,10 +48,6 @@ let selectHoja,
   precargaDelayId,
   overlaySpinnerElement,
   overlayTextElement;
-let selectCanalVenta, selectComercio;
-let paginacionContainer;
-let debounceTimer;
-let activeEventListeners = [];
 
 // --- Helper para añadir y rastrear Event Listeners ---
 function _addManagedEventListener(element, type, handler, options = false) {
@@ -83,11 +79,10 @@ async function _apiRequest(action, params = {}) {
       console.log(`INSPECTOR: Llamando al API Gateway. Acción: ${action}`);
 
       const queryParams = new URLSearchParams({
-        module: "inspector", // Especificamos el módulo
+        module: "inspector",
         action,
         ...params,
       }).toString();
-
       const url = `${GATEWAY_URL}?${queryParams}`;
       console.log("INSPECTOR: URL del API Gateway:", url);
 
@@ -99,46 +94,90 @@ async function _apiRequest(action, params = {}) {
         },
       });
 
-      if (!resp.ok) {
-        const errorText = await resp.text();
-        console.error(`INSPECTOR: Error HTTP ${resp.status}:`, errorText);
+      const contentType = (
+        resp.headers.get("content-type") || ""
+      ).toLowerCase();
 
-        // Reintentar en errores 5xx
+      if (!resp.ok) {
+        let errorText = await resp.text();
+        if (contentType.includes("text/html")) {
+          const stripped = errorText
+            .replace(/<[^>]*>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+          errorText = `Respuesta HTML del servidor: ${stripped.slice(0, 300)}${stripped.length > 300 ? "..." : ""}`;
+        } else {
+          try {
+            const j = JSON.parse(errorText);
+            errorText = typeof j === "string" ? j : JSON.stringify(j);
+          } catch (e) {
+            // keep plain text
+          }
+        }
+
+        console.error(`INSPECTOR: Error HTTP ${resp.status}:`, errorText);
         if (resp.status >= 500 && attempt < maxRetries) {
           lastError = new Error(
             `Error del servidor (${resp.status}). Reintentando...`
           );
           continue;
         }
-
         throw new Error(`HTTP ${resp.status}: ${errorText}`);
       }
 
-      const data = await resp.json();
+      const rawText = await resp.text();
+      let data;
+      if (contentType.includes("application/json")) {
+        try {
+          data = JSON.parse(rawText);
+        } catch (e) {
+          console.warn(
+            "INSPECTOR: Fallo al parsear JSON, responseText:",
+            rawText.slice(0, 500)
+          );
+          throw new Error(
+            "El API devolvió una respuesta no válida (no JSON). ¿Está corriendo el backend?"
+          );
+        }
+      } else if (contentType.includes("text/html")) {
+        const stripped = rawText
+          .replace(/<[^>]*>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        console.error(
+          "INSPECTOR: Respuesta HTML inesperada del API:",
+          stripped.slice(0, 500)
+        );
+        throw new Error(
+          "El endpoint respondió HTML en lugar de JSON. Asegúrate de ejecutar el backend (p. ej. `npx vercel dev`)."
+        );
+      } else {
+        console.error(
+          "INSPECTOR: Respuesta inesperada del API (texto):",
+          rawText.slice(0, 500)
+        );
+        throw new Error(
+          "Respuesta inesperada del API: " + rawText.slice(0, 300)
+        );
+      }
+
       console.log(`INSPECTOR: Respuesta exitosa del API Gateway:`, data);
       return data;
     } catch (error) {
       lastError = error;
-
-      // Errores de red o timeout - reintentar
       const isNetworkError =
         error.name === "TypeError" ||
         error.message.includes("fetch") ||
         error.message.includes("network");
-
       if (isNetworkError && attempt < maxRetries) {
         console.warn(`INSPECTOR: Error de red, reintentando...`, error);
         continue;
       }
-
-      // Si es el último intento, lanzar el error
       if (attempt === maxRetries) {
         console.error(
           "INSPECTOR: Error en llamada a API Gateway (todos los intentos fallaron):",
           error
         );
-
-        // Mensajes más precisos: la causa más común es la conexión con Google Sheets o el API Gateway
         let userMessage = error.message;
         if (
           error.message.includes("504") ||
@@ -157,13 +196,11 @@ async function _apiRequest(action, params = {}) {
           userMessage =
             "🔌 Error de conexión con el servidor o Google Sheets. Verifica la conexión e intenta recargar.";
         }
-
         _updateStatus(userMessage, true);
         throw error;
       }
     }
   }
-
   throw lastError;
 }
 
@@ -474,15 +511,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     precargaDelayId = setTimeout(async () => {
       try {
-        console.log("INSPECTOR: Ejecutando _precargar(false) (auto-delayed)");
+        console.log(
+          "INSPECTOR: Ejecutando health-check antes de precargar (auto-delayed)"
+        );
+        // Health-check ligero: no toca Google Sheets, devuelve {success:true} si gateway está vivo
+        const health = await _apiRequest("ping");
+        if (!health || !health.success) {
+          console.warn(
+            "INSPECTOR: Health-check falló o devolvió falso:",
+            health
+          );
+          _updateStatus(
+            '❌ El API Gateway no está disponible. Haz clic en "Precargar" para reintentar.',
+            true
+          );
+          return;
+        }
+
+        console.log("INSPECTOR: Health-check OK, ejecutando _precargar(false)");
         await _precargar(false);
       } catch (err) {
         console.warn("INSPECTOR: Precarga automática falló:", err);
-        // Mantener el mensaje de estado para que el usuario pueda reintentar
-        _updateStatus(
-          '❌ Falló la precarga automática. Haz clic en "Precargar" para reintentar.',
-          true
-        );
+        // Mensaje más claro si el backend responde pero con error
+        if (err && err.message) {
+          _updateStatus(
+            "❌ Error al conectar con el API Gateway: " + err.message,
+            true
+          );
+        } else {
+          _updateStatus(
+            '❌ Falló la precarga automática. Haz clic en "Precargar" para reintentar.',
+            true
+          );
+        }
       } finally {
         precargaDelayId = null;
       }
