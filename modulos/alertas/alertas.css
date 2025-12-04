@@ -112,7 +112,22 @@ header.header-section-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem; /* Espacio antes de la tabla */
+  margin-bottom: 0.5rem;
+}
+
+.monitor-alertas-root .historial-legend {
+  background-color: var(--color-surface-container);
+  padding: 0.8rem 1rem;
+  border-radius: var(--border-radius-medium);
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: var(--color-on-surface-variant);
+  border-left: 3px solid var(--color-secondary);
+}
+
+.monitor-alertas-root .historial-legend p {
+  margin: 0;
+  line-height: 1.6;
 }
 
 .monitor-alertas-root .sheet-button {
@@ -175,24 +190,80 @@ header.header-section-title {
   white-space: nowrap;
 }
 .monitor-alertas-root .data-table .col-timestamp {
-  width: 20%; /* Aumentado para la fecha y hora */
+  width: 20%;
   white-space: nowrap;
 }
 
 .monitor-alertas-root .data-table .col-asunto {
-  /* width: 35%; */ /* Reducido para dar espacio a otras columnas */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .monitor-alertas-root .data-table .col-condicion {
-  /* width: 12%; */
   white-space: nowrap;
 }
 .monitor-alertas-root .data-table .col-revisado {
   width: 8%;
-  text-align: right;
+  text-align: center;
   white-space: nowrap;
+}
+.monitor-alertas-root .data-table .col-razon {
+  width: 8%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Estilos para las etiquetas de estado tipo tag */
+.estado-tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estado-tag.positivo {
+  background-color: rgba(217, 83, 79, 0.15);
+  color: #d9534f;
+  border: 1px solid rgba(217, 83, 79, 0.3);
+}
+
+.estado-tag.negativo {
+  background-color: rgba(92, 184, 92, 0.15);
+  color: #5cb85c;
+  border: 1px solid rgba(92, 184, 92, 0.3);
+}
+
+/* Estilos para los estados en la tabla */
+.estado-positivo {
+  color: #d9534f;
+  font-weight: 600;
+}
+
+.estado-negativo {
+  color: #5cb85c;
+  font-weight: 600;
+}
+
+/* Ícono de información */
+.info-disparo-icon {
+  font-size: 1.2em;
+  color: var(--color-secondary, #5bc0de);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.info-disparo-icon:hover {
+  color: var(--color-primary, #0275d8);
+  transform: scale(1.2);
+}
+
+.info-icon {
+  color: var(--color-secondary, #5bc0de);
+  margin-left: 0.3rem;
+  cursor: help;
 }
 
 .monitor-alertas-root .data-table td:last-child {

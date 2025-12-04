@@ -558,25 +558,64 @@ function _crearElementoAlerta(alerta, headers, headerMap) {
 
   let revisado = getVal("Revisado"); //
 
-  // Construir HTML del elemento
-  alertaDiv.innerHTML = `
-            <div class="alerta-header">
-                <span class="alerta-fecha">${fechaFormateada}</span>
-                <span class="alerta-estado ${String(revisado).toLowerCase() === "sí" ? "revisado" : "pendiente"}">
-                    ${String(revisado).toLowerCase() === "sí" ? "Revisado" : "Pendiente"}
-                </span>
-            </div>
-            <div class="alerta-body">
-                <div class="alerta-asunto">${asunto}</div>
-            </div>
-        `;
+  // Construir HTML del elemento tipo Grafana
+  const estaRevisado = String(revisado).toLowerCase() === "sí";
 
-  // Añadir evento de click para abrir detalle
-  alertaDiv.addEventListener("click", () => {
-    const cuerpo = getVal("Cuerpo") || getVal("Body") || "";
-    const motivo = getVal("Detalles_Disparo") || "";
-    _abrirModalDetalle(asunto, cuerpo, motivo, alerta);
-  });
+  alertaDiv.innerHTML = `
+    <div class="alerta-contenido">
+        <p class="alerta-asunto-display">${asunto}</p>
+        <p class="alerta-fecha-display">${fechaFormateada}</p>
+    </div>
+    <div class="alerta-acciones">
+        ${
+          !estaRevisado
+            ? `<button class="btn-marcar-revisado" data-uid="${uid}">
+                <i class="ti ti-check"></i> Marcar como revisado
+            </button>`
+            : `<span class="revisado-texto"><i class="ti ti-check-circle"></i> Revisado</span>`
+        }
+    </div>
+  `;
+
+  // Añadir evento de click al contenido para abrir detalle
+  const contenido = alertaDiv.querySelector(".alerta-contenido");
+  if (contenido) {
+    contenido.style.cursor = "pointer";
+    contenido.addEventListener("click", () => {
+      const cuerpo = getVal("Cuerpo") || getVal("Body") || "";
+      const motivo = getVal("Detalles_Disparo") || "";
+      _abrirModalDetalle(asunto, cuerpo, motivo, alerta);
+    });
+  }
+
+  // Añadir evento al botón de marcar como revisado
+  if (!estaRevisado) {
+    const btnMarcar = alertaDiv.querySelector(".btn-marcar-revisado");
+    if (btnMarcar) {
+      btnMarcar.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        btnMarcar.disabled = true;
+        btnMarcar.innerHTML = '<i class="ti ti-loader"></i> Marcando...';
+
+        try {
+          await marcarAlertaComoRevisada(uid);
+          alertaDiv.classList.add("alerta-desvaneciendo");
+          setTimeout(() => {
+            alertaDiv.classList.add("alerta-oculta");
+            setTimeout(() => alertaDiv.remove(), 500);
+          }, 100);
+        } catch (error) {
+          console.error("Error al marcar como revisado:", error);
+          btnMarcar.disabled = false;
+          btnMarcar.innerHTML =
+            '<i class="ti ti-check"></i> Marcar como revisado';
+          alert(
+            "Error al marcar la alerta como revisada. Por favor, intenta de nuevo."
+          );
+        }
+      });
+    }
+  }
 
   return alertaDiv;
 }
@@ -666,11 +705,21 @@ function _renderizarHistorialPaginado() {
       fila.insertCell().innerHTML = `<div class="col-condicion estado-${estadoHistClase}" title="${estadoTitle}">${estadoVal}</div>`;
       fila.insertCell().innerHTML = `<div class="col-revisado revisado-${revisadoHistClase}">${revisadoVal || "No"}</div>`;
 
-      fila.insertCell().innerHTML = `
-                <div class="col-razon" title="${detallesVal}">
+      const cellRazon = fila.insertCell();
+      cellRazon.innerHTML = `
+                <div class="col-razon">
                     <i class="ti ti-info-circle info-disparo-icon" tabindex="0" aria-label="Ver motivo de disparo"></i> 
                 </div>
                 `;
+
+      // Agregar event listener al ícono de info
+      const iconoInfo = cellRazon.querySelector(".info-disparo-icon");
+      if (iconoInfo) {
+        iconoInfo.addEventListener("click", () => {
+          alert(`Motivo del disparo:\n\n${detallesVal}`);
+        });
+        iconoInfo.style.cursor = "pointer";
+      }
     } catch (errRow) {
       console.error(
         `ALERTAS: Error al renderizar fila ${globalIndex}:`,
