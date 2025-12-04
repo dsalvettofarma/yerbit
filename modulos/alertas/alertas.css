@@ -429,141 +429,249 @@ html[data-coreui-theme="dark"] .monitor-alertas-root .alerta-fecha-display {
   font-size: 1.1em;
 }
 
-/* Estilos para el Modal de Detalle de Alerta */
+/**********************************************
+   MODAL DE DETALLE DE ALERTA (ESTILO FINAL)
+***********************************************/
+
+/* Overlay del modal */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.65); /* Semitransparente */
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65); /* oscurece bien el fondo */
   display: flex;
   justify-content: center;
-  align-items: center;
-  z-index: 1050; /* Encima de otros contenidos */
+  align-items: flex-start;
+  padding-top: 5vh;
+  z-index: 9999;
   opacity: 0;
   visibility: hidden;
   transition:
-    opacity 0.3s ease-in-out,
-    visibility 0s linear 0.3s;
+    opacity 0.25s ease,
+    visibility 0.25s ease;
 }
 
+/* Mostrar overlay */
 .modal-overlay:not(.hidden) {
   opacity: 1;
   visibility: visible;
-  transition-delay: 0s;
 }
 
+/* Modal */
 .modal-dialog {
-  background-color: var(
-    --color-surface,
-    #fff
-  ); /* Usar variable de tema o blanco */
-  padding: 1.2rem 1.5rem;
-  border-radius: var(--border-radius-large, 8px);
-  box-shadow: var(--box-shadow-xlarge, 0 8px 24px rgba(0, 0, 0, 0.15));
-  width: 90%;
-  max-width: 700px; /* Ancho máximo del modal */
-  max-height: 75vh; /* Altura máxima, permite scroll si es más alto */
+  background: #ffffff;
+  color: #1a1a1a;
+  width: 92%;
+  max-width: 850px;
+  max-height: 82vh;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  transform: scale(0.97);
-  transition: transform 0.3s ease-in-out;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.45),
+    0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-.modal-overlay:not(.hidden) .modal-dialog {
-  transform: scale(1);
+/* Modal en darkmode */
+html[data-coreui-theme="dark"] .modal-dialog {
+  background: #1e2228;
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* HEADER */
 .modal-header {
+  padding: 1rem 1.3rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--color-outline, #eee);
-  padding-bottom: 0.7rem;
-  margin-bottom: 1rem;
+  background: #f8f9fa;
+}
+
+html[data-coreui-theme="dark"] .modal-header {
+  background: #2a2f36;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header h3 {
   margin: 0;
-  font-size: var(--font-size-xl, 1.25rem);
-  font-weight: 500;
-  color: var(--color-primary, #333);
+  color: #1a1a1a;
+  font-size: 1.25rem;
 }
 
+html[data-coreui-theme="dark"] .modal-header h3 {
+  color: #e5e7eb;
+}
+
+/* Botón de cerrar */
 .modal-close-button {
   background: none;
   border: none;
-  font-size: 1.5rem;
-  line-height: 1;
-  color: var(--color-on-surface-variant, #777);
+  font-size: 1.6rem;
   cursor: pointer;
-  padding: 0.15rem;
-}
-.modal-close-button:hover {
-  color: var(--color-error, #d9534f);
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
+html[data-coreui-theme="dark"] .modal-close-button {
+  color: #9ca3af;
+}
+
+.modal-close-button:hover {
+  background: rgba(108, 117, 125, 0.15);
+  color: #495057;
+}
+
+html[data-coreui-theme="dark"] .modal-close-button:hover {
+  background: rgba(156, 163, 175, 0.15);
+  color: #e5e7eb;
+}
+
+/* CUERPO */
 .modal-body-content {
-  }
-  .modal-body-content pre {
-    background: var(--color-surface-container);
-    padding: 1rem;
-    border-radius: 8px;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    font-size: 0.9rem;
-    line-height: 1.5;
-  }
-  overflow-y: auto; /* Habilita scroll si el contenido es muy largo */
-  white-space: pre-wrap; /* Conserva saltos de línea y espacios del email */
+  padding: 1.2rem 1.4rem;
+  overflow-y: auto;
+  max-height: calc(82vh - 70px);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #1a1a1a;
+  background: #ffffff;
+  scroll-behavior: smooth;
+}
+
+html[data-coreui-theme="dark"] .modal-body-content {
+  color: #e5e7eb;
+  background: #1e2228;
+}
+
+/* PRE (cuerpo del mail) */
+.modal-body-content pre {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  white-space: pre-wrap;
+  color: #1a1a1a;
+  font-family: Menlo, Consolas, monospace;
+}
+
+html[data-coreui-theme="dark"] .modal-body-content pre {
+  background: #2a2f36;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+}
+
+/* CAJAS INTERNAS */
+.motivo-alerta-modal,
+.datos-parseados {
+  background: #f0f4f8;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  color: #1a1a1a;
+}
+
+html[data-coreui-theme="dark"] .motivo-alerta-modal,
+html[data-coreui-theme="dark"] .datos-parseados {
+  background: #2a2f36;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+}
+
+/* Títulos dentro del box */
+.motivo-alerta-modal strong,
+.datos-parseados strong {
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+html[data-coreui-theme="dark"] .motivo-alerta-modal strong,
+html[data-coreui-theme="dark"] .datos-parseados strong {
+  color: #6ea8fe;
+}
+
+/* Caja <pre> dentro de datos parseados */
+.datos-parseados pre {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0.8rem;
+  border-radius: 6px;
+  color: #1a1a1a;
+  margin-top: 0.5rem;
+}
+
+html[data-coreui-theme="dark"] .datos-parseados pre {
+  background: #1e2228;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+}
+
+/* TEXTO DESTACADO AUTOMÁTICO */
+.texto-destacado-modal {
+  background: rgba(13, 110, 253, 0.18);
+  color: #0d6efd;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-block;
+  line-height: 1.3;
+}
+
+html[data-coreui-theme="dark"] .texto-destacado-modal {
+  background: rgba(110, 168, 254, 0.28);
+  color: #6ea8fe;
+}
+
+/* CONTENIDO DEL EMAIL FORMATEADO (reemplaza <pre>) */
+.contenido-email-formateado {
+  background: #f8f9fa;
+  padding: 1.2rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1a1a1a;
   font-family:
-    "Menlo", "Monaco", "Consolas", "Courier New", monospace; /* Mejor para texto crudo */
-  font-size: var(--font-size-lg, 0.9rem); /* Ligeramente más pequeño */
-  line-height: 1.5;
-  color: var(--color-on-surface, #333);
-  margin-bottom: 1rem; /* Espacio si hay datos parseados debajo */
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+html[data-coreui-theme="dark"] .contenido-email-formateado {
+  background: #2a2f36;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+}
+
+/* Utilidades */
+.texto-a-ocultar {
+  display: none;
 }
 
 .modal-parsed-data {
-  /* Estilos para la sección de datos parseados (Fase 2) */
-  border-top: 1px solid var(--color-outline, #eee);
+  border-top: 1px solid var(--color-outline);
   padding-top: 0.7rem;
-  font-size: var(--font-size-md, 0.85rem);
+  font-size: 0.85rem;
 }
 
 .highlighted-keyword {
-  background-color: rgba(
-    255,
-    230,
-    100,
-    0.7
-  ); /* Amarillo claro semitransparente */
+  background-color: rgba(255, 230, 100, 0.7);
   font-weight: bold;
   padding: 0.1em 0.2em;
   border-radius: 3px;
-  /* Para el subrayado con color: */
-  /* border-bottom: 2px solid var(--color-error, red); */
-  /* O usar text-decoration si prefieres: */
   text-decoration: underline;
-  text-decoration-color: var(--color-error, red);
-  text-decoration-thickness: 1.2px; /* Ajusta según necesites */
-}
-
-/*PARSEO DE DATOS PARA MEJOR VISUAL*/
-/* En alertas.css */
-
-/* ... (tus otros estilos del modal) ... */
-
-.texto-destacado-modal {
-  background: rgba(255, 212, 67, 0.25);
-  color: #c49a00;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 6px;
-}
-.texto-a-ocultar {
-  display: none;
+  text-decoration-color: var(--color-error);
+  text-decoration-thickness: 1.2px;
 }
 
 /* --- NUEVOS ESTILOS PARA LA LEYENDA --- */
@@ -699,31 +807,7 @@ html[data-coreui-theme="dark"] .monitor-alertas-root .alerta-fecha-display {
   color: var(--color-secondary-variant);
   transform: scale(1.05);
 }
-.motivo-alerta-modal {
-  background: var(--color-surface-container-hover, #23272b);
-  color: var(--color-on-surface, #f1f1f1);
-  border-left: 3px solid var(--color-secondary, #40a9ff);
-  padding: 0.7rem 1.2rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  font-size: var(--font-size-lg, 0.9rem);
-  display: flex;
-  align-items: center;
-  gap: 0.4em;
-}
-.motivo-alerta-modal i {
-  color: var(--color-secondary, #40a9ff);
-  font-size: 1.1em;
-}
-.datos-parseados {
-  background: #1e2329;
-  color: #fff;
-  border-left: 3px solid #41b2ef;
-  padding: 0.7em 1.2em;
-  margin-bottom: 1em;
-  font-size: var(--font-size-lg, 0.9rem);
-  border-radius: 6px;
-}
+
 .paginado-historial {
   display: flex;
   justify-content: flex-end;

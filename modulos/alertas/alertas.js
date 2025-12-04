@@ -479,35 +479,82 @@ function _abrirModalDetalle(
     .replace(/\n\s*\n{2,}/g, "\n\n")
     .trim();
 
-  // Resaltado de textos (sin incluir "Total general $")
-  const textosAResaltar = [
-    "documento",
-    "usuario",
-    "Información de envío",
-    "Tarjeta:",
-    "Método de envío",
-    "Perfume"
-  ];
+  // 🔥 Limpieza profunda del cuerpo del mail
+  // Elimina líneas técnicas, headers MIME, líneas vacías repetidas,
+  // cosas que empiezan con ":" y texto duplicado
+  let lineas = contenidoHtmlProcesado
+    .split("\n")
+    .map((l) => l.trimEnd()) // mantiene formato pero limpia el final
+    .filter((l) => {
+      // 1. Eliminar encabezados MIME / basura técnica
+      if (
+        /^(content-|mime-version|received:|dkim-|return-path|delivered-to)/i.test(
+          l
+        )
+      )
+        return false;
 
-  textosAResaltar.forEach((texto) => {
-    const textoEscapado = texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regexResaltar = new RegExp(`(${textoEscapado})`, "gi");
-    contenidoHtmlProcesado = contenidoHtmlProcesado.replace(
-      regexResaltar,
-      '<span class="texto-destacado-modal">$1</span>'
-    );
-  });
+      // 2. Eliminar líneas que empiezan con ":" (las que arruinaban el diseño)
+      if (/^:\s*\S*/.test(l)) return false;
 
-  // Regla especial para el monto del total
+      // 3. Eliminar SOLO números que son demasiado largos (basura MIME)
+      // Mantener números normales como pedidos, CI, teléfonos, BIN, totales, etc.
+      if (/^[0-9]{15,}$/.test(l)) return false;
+
+      // 4. Eliminar líneas que son solo "-" o "_" repetidos
+      if (/^[-_]{4,}$/.test(l)) return false;
+
+      // 5. Eliminar líneas vacías repetidas
+      if (l.trim() === "") return true;
+
+      return true;
+    });
+
+  // Normalizar dobles saltos de línea
+  contenidoHtmlProcesado = lineas.join("\n").replace(/\n{3,}/g, "\n\n");
+
+  // ⭐ REGLA 1: Resaltar SOLO el valor del usuario
+  // Ej: "Usuario: Juan Pérez" → resaltar "Juan Pérez"
+  contenidoHtmlProcesado = contenidoHtmlProcesado.replace(
+    /(usuario[: ]+)([^\n]+)/i,
+    (m, etiqueta, valor) =>
+      `${etiqueta}<span class="texto-destacado-modal">${valor.trim()}</span>`
+  );
+
+  // ⭐ REGLA 2: Resaltar SOLO el valor del documento
+  // Ej: "Documento: CI 12345678" → resaltar "CI 12345678"
+  contenidoHtmlProcesado = contenidoHtmlProcesado.replace(
+    /(documento[: ]+)([^\n]+)/i,
+    (m, etiqueta, valor) =>
+      `${etiqueta}<span class="texto-destacado-modal">${valor.trim()}</span>`
+  );
+
+  // ⭐ REGLA 3: Caso inverso → "Información de envío" resalta línea anterior
+  // Ej: "123456789\nInformación de envío" → resaltar "123456789"
+  contenidoHtmlProcesado = contenidoHtmlProcesado.replace(
+    /([^\n]+)\n\s*(Información de envío)/i,
+    (m, lineaAnterior, texto) =>
+      `<span class="texto-destacado-modal">${lineaAnterior.trim()}</span>\n${texto}`
+  );
+
+  // ⭐ REGLA 4: Resaltado especial del monto del total
   contenidoHtmlProcesado = contenidoHtmlProcesado.replace(
     /(Total general\s+\$)(\s*\d[\d\.,]*)/gi,
     (match, etiqueta, monto) =>
       `Total general $ <span class="texto-destacado-modal">${monto.trim()}</span>`
   );
 
-  // Seteás el HTML armado de una sola vez
+  // Convertir saltos de línea a <br> para mejor visualización
+  const contenidoFormateado = contenidoHtmlProcesado
+    .split("\n")
+    .map((linea) => (linea.trim() ? linea : "<br>"))
+    .join("<br>");
+
+  // Seteás el HTML armado de una sola vez (sin <pre> para mejor formato)
   modalDetalleCuerpoElement.innerHTML =
-    motivoHtml + datosParseadosHtml + `<pre>${contenidoHtmlProcesado}</pre>`;
+    motivoHtml +
+    datosParseadosHtml +
+    `<div class="contenido-email-formateado">${contenidoFormateado}</div>`;
 
   if (modalDetalleDatosParseadosDiv) {
     modalDetalleDatosParseadosDiv.innerHTML = "";
@@ -515,6 +562,21 @@ function _abrirModalDetalle(
   }
 
   alertaModalElement.classList.remove("hidden");
+}
+
+function _cerrarModalDetalle() {
+  if (alertaModalElement) {
+    alertaModalElement.classList.add("hidden");
+  }
+}
+
+function _crearElementoAlerta(alerta, headers, headerMap) {
+  const alertaDiv = document.createElement("div");
+  alertaDiv.className = "alerta-item";
+
+  const getVal = (keyNormalizada) => {
+    const headerReal = headerMap[keyNormalizada.toLowerCase().trim()];
+    return headerReal &&
       alerta[headerReal] !== undefined &&
       alerta[headerReal] !== null
       ? alerta[headerReal]
@@ -566,18 +628,6 @@ function _abrirModalDetalle(
     </div>
   `;
 
-  // Añadir evento de click al contenido para abrir detalle
-  const contenido = alertaDiv.querySelector(".alerta-contenido");
-  if (contenido) {
-    contenido.style.cursor = "pointer";
-    contenido.addEventListener("click", () => {
-      const cuerpo = getVal("Cuerpo") || getVal("Body") || "";
-      const motivo = getVal("Detalles_Disparo") || "";
-      _abrirModalDetalle(asunto, cuerpo, motivo, alerta);
-    });
-  }
-
-  // Añadir evento al botón de marcar como revisado
   // Hacer toda la tarjeta clickeable excepto el botón "Marcar como revisado"
   alertaDiv.style.cursor = "pointer";
   alertaDiv.addEventListener("click", (e) => {
@@ -596,8 +646,13 @@ function _abrirModalDetalle(
         btnMarcar.disabled = true;
         btnMarcar.innerHTML = '<i class="ti ti-loader"></i> Marcando...';
         try {
-          // ... lógica de marcar como revisado ...
-          setTimeout(() => alertaDiv.remove(), 500);
+          await marcarAlertaComoRevisada(uid);
+          btnMarcar.innerHTML = '<i class="ti ti-check"></i> Revisado';
+          btnMarcar.disabled = true;
+          setTimeout(() => {
+            alertaDiv.classList.add("alerta-fade-out");
+            setTimeout(() => alertaDiv.remove(), 500);
+          }, 100);
         } catch (error) {
           console.error("Error al marcar como revisado:", error);
           btnMarcar.disabled = false;
