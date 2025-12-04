@@ -505,6 +505,16 @@ html[data-coreui-theme="dark"] .monitor-alertas-root .alerta-fecha-display {
 }
 
 .modal-body-content {
+  }
+  .modal-body-content pre {
+    background: var(--color-surface-container);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
   overflow-y: auto; /* Habilita scroll si el contenido es muy largo */
   white-space: pre-wrap; /* Conserva saltos de línea y espacios del email */
   font-family:
@@ -546,11 +556,11 @@ html[data-coreui-theme="dark"] .monitor-alertas-root .alerta-fecha-display {
 /* ... (tus otros estilos del modal) ... */
 
 .texto-destacado-modal {
-  background-color: #ffd700; /* Un amarillo dorado, por ejemplo */
-  color: #333; /* Color de texto oscuro para contraste */
-  font-weight: bold;
-  padding: 0.1em 0.2em;
-  border-radius: 3px;
+  background: rgba(255, 212, 67, 0.25);
+  color: #c49a00;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
 }
 .texto-a-ocultar {
   display: none;
