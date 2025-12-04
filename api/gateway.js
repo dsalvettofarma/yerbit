@@ -1,7 +1,7 @@
 // API Gateway para centralizar todas las funcionalidades de Nova
 // Reemplaza las llamadas directas a Google Apps Script
 
-import { sheets } from "./_lib/google-sheets.js";
+import { sheets, withRetry } from "./_lib/google-sheets.js";
 
 // IDs de las hojas de cálculo (migrados desde Apps Script)
 const SPREADSHEET_IDS = {
@@ -440,24 +440,27 @@ async function handleInspector(action, params) {
 
 async function getSheets(spreadsheetId = SPREADSHEET_IDS.INSPECTOR) {
   try {
-    const response = await sheets.spreadsheets.get({
-      spreadsheetId,
-    });
+    const response = await withRetry(() =>
+      sheets.spreadsheets.get({ spreadsheetId })
+    );
 
     // Extraer solo los nombres de las hojas para mantener compatibilidad con el frontend
     const sheetNames = response.data.sheets.map(
       (sheet) => sheet.properties.title
     );
 
+    console.log(`📋 Hojas obtenidas: ${sheetNames.join(", ")}`);
+
     // Devolver en el formato que espera el frontend
     return { sheets: sheetNames };
   } catch (error) {
-    console.error("Error obteniendo hojas:", error);
+    console.error("❌ Error obteniendo hojas:", error);
     throw new Error("Error obteniendo hojas del spreadsheet");
   }
 }
 
 async function searchInSheet(params) {
+  const startTime = Date.now();
   try {
     const {
       spreadsheetId = SPREADSHEET_IDS.INSPECTOR,
@@ -467,13 +470,21 @@ async function searchInSheet(params) {
       matchType = "contains",
     } = params;
 
-    // Obtener metadatos de la hoja para saber la última columna
-    const sheetMeta = await sheets.spreadsheets.get({ spreadsheetId });
+    console.log(`🔍 Iniciando búsqueda en hoja: ${sheet}`);
+
+    // Obtener metadatos de la hoja con retry
+    const sheetMeta = await withRetry(() =>
+      sheets.spreadsheets.get({ spreadsheetId })
+    );
+
     const sheetInfo = sheetMeta.data.sheets.find(
       (s) => s.properties.title === sheet
     );
     if (!sheetInfo) throw new Error(`Hoja '${sheet}' no encontrada`);
+
+    const rowCount = sheetInfo.properties.gridProperties.rowCount || 1000;
     const lastColIndex = sheetInfo.properties.gridProperties.columnCount;
+
     // Convertir índice a letra de columna (A, B, ..., Z, AA, AB, ...)
     function colIdxToLetter(idx) {
       let letter = "";
@@ -485,15 +496,66 @@ async function searchInSheet(params) {
       return letter;
     }
     const lastColLetter = colIdxToLetter(lastColIndex);
-    const range = `${sheet}!A:${lastColLetter}`;
 
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range,
-    });
+    console.log(`📊 Hoja tiene ${rowCount} filas y ${lastColIndex} columnas`);
 
-    const rows = response.data.values || [];
-    if (rows.length < 2) return { headers: [], results: [] };
+    // Para hojas muy grandes (>10k filas), usar chunking
+    const CHUNK_SIZE = 10000;
+    let rows = [];
+
+    if (rowCount > CHUNK_SIZE) {
+      console.log(`⚡ Hoja grande detectada, usando chunking...`);
+      const numChunks = Math.ceil(rowCount / CHUNK_SIZE);
+
+      for (let i = 0; i < numChunks; i++) {
+        const startRow = i * CHUNK_SIZE + 1;
+        const endRow = Math.min((i + 1) * CHUNK_SIZE, rowCount);
+        const range = `${sheet}!A${startRow}:${lastColLetter}${endRow}`;
+
+        console.log(`📦 Cargando chunk ${i + 1}/${numChunks}: ${range}`);
+
+        const chunkResponse = await withRetry(() =>
+          sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range,
+          })
+        );
+
+        if (chunkResponse.data.values) {
+          rows = rows.concat(chunkResponse.data.values);
+        }
+      }
+
+      // Si es el primer chunk, obtener headers separadamente
+      const headerResponse = await withRetry(() =>
+        sheets.spreadsheets.values.get({
+          spreadsheetId,
+          range: `${sheet}!A1:${lastColLetter}1`,
+        })
+      );
+
+      if (headerResponse.data.values && headerResponse.data.values[0]) {
+        rows.unshift(headerResponse.data.values[0]);
+      }
+    } else {
+      // Hoja pequeña, obtener todo de una vez
+      const range = `${sheet}!A:${lastColLetter}`;
+      console.log(`📄 Hoja normal, cargando todo: ${range}`);
+
+      const response = await withRetry(() =>
+        sheets.spreadsheets.values.get({
+          spreadsheetId,
+          range,
+        })
+      );
+
+      rows = response.data.values || [];
+    }
+
+    if (rows.length < 2) {
+      console.log(`⚠️ No hay datos suficientes en la hoja`);
+      return { headers: [], results: [] };
+    }
 
     const headers = rows[0];
     let results = [];
@@ -501,12 +563,17 @@ async function searchInSheet(params) {
     if (column === "todos" && value === "__all__") {
       // Devolver todos los datos como matriz de arrays (no objetos)
       results = rows.slice(1);
+      console.log(`✅ Retornando ${results.length} filas completas`);
     } else {
       // Búsqueda específica
       const columnIndex = headers.indexOf(column);
       if (columnIndex === -1) {
         throw new Error(`Columna '${column}' no encontrada`);
       }
+
+      console.log(
+        `🔎 Filtrando por columna: ${column} (índice ${columnIndex})`
+      );
 
       results = rows.slice(1).filter((row) => {
         const cellValue = (row[columnIndex] || "").toString().toLowerCase();
@@ -524,13 +591,31 @@ async function searchInSheet(params) {
             return cellValue.includes(searchValue);
         }
       });
+
+      console.log(`✅ Encontradas ${results.length} filas que coinciden`);
     }
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(`⏱️ Búsqueda completada en ${elapsed}s`);
 
     // Devolver en el formato que espera el frontend: { headers: [], results: [] }
     return { headers, results };
   } catch (error) {
-    console.error("Error en búsqueda:", error);
-    throw new Error("Error en búsqueda");
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.error(`❌ Error en búsqueda después de ${elapsed}s:`, error);
+
+    // Proporcionar mensaje de error más útil
+    if (error.code === 504 || error.message.includes("timeout")) {
+      throw new Error(
+        "La hoja es muy grande y tardó demasiado. Intenta filtrar por fecha o refresca la página."
+      );
+    } else if (error.code === 503) {
+      throw new Error(
+        "Servicio temporalmente no disponible. Por favor, intenta de nuevo en unos segundos."
+      );
+    } else {
+      throw new Error(`Error en búsqueda: ${error.message}`);
+    }
   }
 }
 

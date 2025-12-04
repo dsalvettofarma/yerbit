@@ -45,6 +45,7 @@ let selectHoja,
   tablaResultados,
   estadoElement,
   precargaTimerId,
+  precargaDelayId,
   overlaySpinnerElement,
   overlayTextElement;
 let selectCanalVenta, selectComercio;
@@ -68,38 +69,102 @@ function _addManagedEventListener(element, type, handler, options = false) {
 const GATEWAY_URL = "/api/gateway";
 
 async function _apiRequest(action, params = {}) {
-  try {
-    console.log(`INSPECTOR: Llamando al API Gateway. Acción: ${action}`);
+  const maxRetries = 2;
+  let lastError;
 
-    const queryParams = new URLSearchParams({
-      module: "inspector", // Especificamos el módulo
-      action,
-      ...params,
-    }).toString();
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        console.log(`INSPECTOR: Reintento ${attempt}/${maxRetries}...`);
+        _updateStatus(`⏳ Reintentando... (${attempt}/${maxRetries})`, false);
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+      }
 
-    const url = `${GATEWAY_URL}?${queryParams}`;
-    console.log("INSPECTOR: URL del API Gateway:", url);
+      console.log(`INSPECTOR: Llamando al API Gateway. Acción: ${action}`);
 
-    const resp = await fetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    });
+      const queryParams = new URLSearchParams({
+        module: "inspector", // Especificamos el módulo
+        action,
+        ...params,
+      }).toString();
 
-    if (!resp.ok) {
-      throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+      const url = `${GATEWAY_URL}?${queryParams}`;
+      console.log("INSPECTOR: URL del API Gateway:", url);
+
+      const resp = await fetch(url, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!resp.ok) {
+        const errorText = await resp.text();
+        console.error(`INSPECTOR: Error HTTP ${resp.status}:`, errorText);
+
+        // Reintentar en errores 5xx
+        if (resp.status >= 500 && attempt < maxRetries) {
+          lastError = new Error(
+            `Error del servidor (${resp.status}). Reintentando...`
+          );
+          continue;
+        }
+
+        throw new Error(`HTTP ${resp.status}: ${errorText}`);
+      }
+
+      const data = await resp.json();
+      console.log(`INSPECTOR: Respuesta exitosa del API Gateway:`, data);
+      return data;
+    } catch (error) {
+      lastError = error;
+
+      // Errores de red o timeout - reintentar
+      const isNetworkError =
+        error.name === "TypeError" ||
+        error.message.includes("fetch") ||
+        error.message.includes("network");
+
+      if (isNetworkError && attempt < maxRetries) {
+        console.warn(`INSPECTOR: Error de red, reintentando...`, error);
+        continue;
+      }
+
+      // Si es el último intento, lanzar el error
+      if (attempt === maxRetries) {
+        console.error(
+          "INSPECTOR: Error en llamada a API Gateway (todos los intentos fallaron):",
+          error
+        );
+
+        // Mensajes más precisos: la causa más común es la conexión con Google Sheets o el API Gateway
+        let userMessage = error.message;
+        if (
+          error.message.includes("504") ||
+          error.message.toLowerCase().includes("timeout")
+        ) {
+          userMessage =
+            "❌ Falló la conexión con Google Sheets o el API Gateway (timeout). Intenta recargar o precargar manualmente.";
+        } else if (error.message.includes("503")) {
+          userMessage =
+            "⚠️ Servicio de Google Sheets temporalmente no disponible. Intenta recargar en unos segundos.";
+        } else if (
+          error.message.includes("fetch") ||
+          error.message.includes("network") ||
+          error.name === "TypeError"
+        ) {
+          userMessage =
+            "🔌 Error de conexión con el servidor o Google Sheets. Verifica la conexión e intenta recargar.";
+        }
+
+        _updateStatus(userMessage, true);
+        throw error;
+      }
     }
-
-    const data = await resp.json();
-    console.log(`INSPECTOR: Respuesta exitosa del API Gateway:`, data);
-    return data;
-  } catch (error) {
-    console.error("INSPECTOR: Error en llamada a API Gateway:", error);
-    _updateStatus(`Error: ${error.message}`, true);
-    throw error;
   }
+
+  throw lastError;
 }
 
 // --- Funciones de UI y Utilidad (Adaptadas de tu script) ---
@@ -396,9 +461,32 @@ document.addEventListener("DOMContentLoaded", async () => {
           tablaResultados.tBodies[0].innerHTML = "";
       });
     }
-    _updateStatus('Selecciona una hoja y haz clic en "Precargar hoja".', false);
-    console.log("INSPECTOR: Llamando a _precargar(false)");
-    await _precargar(false);
+    // Precarga automática con delay: evita llamadas inmediatas a Sheets al cargar la UI
+    _updateStatus(
+      'Selecciona una hoja y haz clic en "Precargar hoja". Iniciando precarga automática en 2s...',
+      false
+    );
+    console.log("INSPECTOR: Precarga automática programada en 2s...");
+    // Limpiar cualquier timeout previo
+    if (typeof precargaDelayId !== "undefined" && precargaDelayId) {
+      clearTimeout(precargaDelayId);
+      precargaDelayId = null;
+    }
+    precargaDelayId = setTimeout(async () => {
+      try {
+        console.log("INSPECTOR: Ejecutando _precargar(false) (auto-delayed)");
+        await _precargar(false);
+      } catch (err) {
+        console.warn("INSPECTOR: Precarga automática falló:", err);
+        // Mantener el mensaje de estado para que el usuario pueda reintentar
+        _updateStatus(
+          '❌ Falló la precarga automática. Haz clic en "Precargar" para reintentar.',
+          true
+        );
+      } finally {
+        precargaDelayId = null;
+      }
+    }, 2000);
   } catch (err) {
     console.error("INSPECTOR: Error en inicialización:", err);
     if (estadoElement)
@@ -584,6 +672,14 @@ async function _precargar(forzarRefrescoDeHojas = false) {
     if (overlayTextElement)
       overlayTextElement.textContent = `${msgCargandoBase} (Hoja: ${hojaSeleccionada})...`;
 
+    // Agregar mensaje de progreso
+    console.log(
+      `🔄 INSPECTOR: Iniciando carga de datos para: ${hojaSeleccionada}`
+    );
+    if (overlayTextElement) {
+      overlayTextElement.textContent = `⏳ Cargando ${hojaSeleccionada}... Esto puede tomar hasta 1 minuto para hojas grandes.`;
+    }
+
     const dataSheet = await _apiRequest("search", {
       sheet: hojaSeleccionada,
       column: "todos",
@@ -593,6 +689,10 @@ async function _precargar(forzarRefrescoDeHojas = false) {
 
     clearInterval(precargaTimerId); // Detener el timer después de la carga
     precargaTimerId = null;
+
+    console.log(
+      `✅ INSPECTOR: Datos cargados exitosamente para: ${hojaSeleccionada}`
+    );
 
     if (
       !dataSheet ||
