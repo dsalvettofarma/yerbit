@@ -1,231 +1,314 @@
-<!DOCTYPE html>
-<html lang="es" >
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inspector de pagos</title>
-  <!-- Tabler Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-  <!-- Estilos generales del dashboard -->
-  <link rel="stylesheet" href="styles.css">
-  <!-- Custom CSS para el Inspector -->
-  <link rel="stylesheet" href="modulos/inspector/inspector.css">
-  
-  <!-- Módulo JS del Layout (reutilizado) -->
-  <script type="module" src="dashboard-layout.js"></script>
-</head>
-<body>
-  <div class="dashboard-container">
-    <!-- Header y Sidebar serán inyectados por dashboard-layout.js -->
-    <main id="mainContent">
-      <div id="module-content">
-        <!-- Contenido específico del Inspector -->
-        <div class="inspector-root">
-          <!-- Overlay para spinner de carga -->
-          <div id="overlay-spinner" class="overlay-spinner" style="display:none;">
-            <div class="spinner-container">
-              <div class="spinner"></div>
-              <div id="overlay-text" class="overlay-text">Cargando…</div>
-            </div>
-          </div>
-          
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inspector de pagos</title>
+    <!-- Tabler Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
+    />
+    <!-- Estilos generales del dashboard -->
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Custom CSS para el Inspector -->
+    <link rel="stylesheet" href="modulos/inspector/inspector.css" />
 
-          <div class="inspector-card">
-            <!-- Header compacto y elegante -->
-            <div class="compact-header">
-              <div class="header-content">
-                <div class="header-left">
-                  <h4 class="module-title">
-                    <i class="ti ti-search" style="font-size: 1.2em; color: var(--accent-color);"></i>
-                    Inspector de pagos
-                  </h4>
-                  <small class="header-subtitle">Recordá precargar la hoja. Los filtros se aplican en orden: fecha → texto</small>
-                </div>
-                
-                <div class="header-actions">
-                  <!-- Botones principales con colores del tema claro -->
-                  <div class="btn-group-actions">
-                    <button id="btnRefrescarHojas" class="btn-action btn-primary" title="Refrescar hojas disponibles">
-                      <i class="ti ti-refresh"></i> Refrescar
-                    </button>
-                    <button id="btnPrecargar" class="btn-action btn-warning" title="Precargar datos de la hoja">
-                      <i class="ti ti-download"></i> Precargar
-                    </button>
-                    <button id="btnMostrarUltimo" class="btn-action btn-success" title="Mostrar último registro">
-                      <i class="ti ti-clock"></i> Último
-                    </button>
-                    <button id="btnAnulados" class="btn-action btn-secondary" title="Filtrar pagos anulados">
-                      <i class="ti ti-x"></i> Anulados
-                    </button>
-                    <button id="btnRechazados" class="btn-action btn-danger" title="Filtrar pagos rechazados">
-                      <i class="ti ti-alert-triangle"></i> Rechazados
-                    </button>
-                  </div>
-                  
-                  <!-- Enlaces externos -->
-                  <div class="header-links">
-                    <a href="#" target="_blank" class="link-action" title="Ver documentación">
-                      <i class="ti ti-help-circle"></i>
-                    </a>
-                    <a href="https://docs.google.com/spreadsheets/d/1SBniJctF3j2nMt4M1IQWFkvjsKhCqJ_h6kqEtcvGdsg/edit" id="sheet-link" class="link-action" target="_blank" title="Ver hoja de cálculo">
-                      <i class="ti ti-external-link"></i>
-                    </a>
-                  </div>
-                </div>
+    <!-- Módulo JS del Layout (reutilizado) -->
+    <script type="module" src="dashboard-layout.js"></script>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- Header y Sidebar serán inyectados por dashboard-layout.js -->
+      <main id="mainContent">
+        <div id="module-content">
+          <!-- Contenido específico del Inspector -->
+          <div class="inspector-root">
+            <!-- Overlay para spinner de carga -->
+            <div
+              id="overlay-spinner"
+              class="overlay-spinner"
+              style="display: none"
+            >
+              <div class="spinner-container">
+                <div class="spinner"></div>
+                <div id="overlay-text" class="overlay-text">Cargando…</div>
               </div>
             </div>
-            
-            <!-- Filtros compactos en diseño híbrido -->
-            <div class="filters-hybrid">
-              <!-- Fila principal de búsqueda -->
-              <div class="search-row">
-                <div class="search-group">
-                  <label class="search-label">Hoja:</label>
-                  <select id="sheet" class="search-control"></select>
-                </div>
-                
-                <div class="search-group">
-                  <label class="search-label">Columna:</label>
-                  <select id="column" class="search-control">
-                    <option value="__all__">Todas las columnas</option>
-                  </select>
-                </div>
-                
-                <div class="search-group flex-grow">
-                  <label class="search-label">Valor:</label>
-                  <input type="text" id="value-input" class="search-control" placeholder="Buscar...">
-                </div>
-                
-                <div class="search-group">
-                  <label class="search-label">Tipo:</label>
-                  <select id="match-select" class="search-control search-control-sm">
-                    <option value="contains">Contiene</option>
-                    <option value="exact">Exacto</option>
-                  </select>
-                </div>
-                
-                <div class="search-group">
-                  <button id="btnBuscar" class="btn-search-main">
-                    <i class="ti ti-search"></i> Buscar
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Filtros avanzados expandibles -->
-              <div class="advanced-filters">
-                <div class="advanced-toggle">
-                  <button type="button" class="btn-toggle-advanced" id="toggleAdvancedBtn">
-                    <i class="ti ti-filter"></i> Filtros Avanzados
-                    <i class="ti ti-chevron-down toggle-icon"></i>
-                  </button>
-                </div>
-                
-                <div class="advanced-content" id="advancedFilters" style="display:none;">
-                  <!-- Filtros de fecha -->
-                  <div class="filter-section">
-                    <label class="section-label">
-                      <i class="ti ti-calendar"></i> Filtro por fechas
-                    </label>
-                    <div class="date-filters">
-                      <div class="date-group">
-                        <label class="date-label">Desde:</label>
-                        <input type="date" id="fecha-desde" class="date-control">
-                      </div>
-                      <div class="date-group">
-                        <label class="date-label">Hasta:</label>
-                        <input type="date" id="fecha-hasta" class="date-control">
-                      </div>
-                      <div class="date-actions">
-                        <button id="btnLimpiarFiltroFechas" class="btn-clear-dates">
-                          <i class="ti ti-trash"></i> Limpiar
-                        </button>
-                      </div>
-                    </div>
+
+            <div class="inspector-card">
+              <!-- Header compacto y elegante -->
+              <div class="compact-header">
+                <div class="header-content">
+                  <div class="header-left">
+                    <h4 class="module-title">
+                      <i
+                        class="ti ti-search"
+                        style="font-size: 1.2em; color: var(--accent-color)"
+                      ></i>
+                      Inspector de pagos
+                    </h4>
+                    <small class="header-subtitle"
+                      >Recordá precargar la hoja. Los filtros se aplican en
+                      orden: fecha → texto</small
+                    >
                   </div>
-                  
-                  <!-- Filtros adicionales -->
-                  <div class="filter-section">
-                    <label class="section-label">
-                      <i class="ti ti-filter-star"></i> Filtros específicos
-                    </label>
-                    <div class="specific-filters">
-                      <div class="specific-group">
-                        <label class="specific-label">Canal:</label>
-                        <select id="canal" class="specific-control">
-                          <option value="">Todos</option>
-                          <option value="FARMASHOP">Web</option>
-                          <option value="FARMASHOP_APP">App</option>
-                        </select>
-                      </div>
-                      <div class="specific-group">
-                        <label class="specific-label">Comercio:</label>
-                        <select id="comercio" class="specific-control">
-                          <option value="">Todos</option>
-                        </select>
-                      </div>
+
+                  <div class="header-actions">
+                    <!-- Botones principales con colores del tema claro -->
+                    <div class="btn-group-actions">
+                      <button
+                        id="btnRefrescarHojas"
+                        class="btn-action btn-primary"
+                        title="Refrescar hojas disponibles"
+                      >
+                        <i class="ti ti-refresh"></i> Refrescar
+                      </button>
+                      <button
+                        id="btnPrecargar"
+                        class="btn-action btn-warning"
+                        title="Precargar datos de la hoja"
+                      >
+                        <i class="ti ti-download"></i> Precargar
+                      </button>
+                      <button
+                        id="btnMostrarUltimo"
+                        class="btn-action btn-success"
+                        title="Mostrar último registro"
+                      >
+                        <i class="ti ti-clock"></i> Último
+                      </button>
+                      <button
+                        id="btnAnulados"
+                        class="btn-action btn-secondary"
+                        title="Filtrar pagos anulados"
+                      >
+                        <i class="ti ti-x"></i> Anulados
+                      </button>
+                      <button
+                        id="btnRechazados"
+                        class="btn-action btn-danger"
+                        title="Filtrar pagos rechazados"
+                      >
+                        <i class="ti ti-alert-triangle"></i> Rechazados
+                      </button>
+                    </div>
+
+                    <!-- Enlaces externos -->
+                    <div class="header-links">
+                      <a
+                        href="#"
+                        target="_blank"
+                        class="link-action"
+                        title="Ver documentación"
+                      >
+                        <i class="ti ti-help-circle"></i>
+                      </a>
+                      <a
+                        href="https://docs.google.com/spreadsheets/d/1SBniJctF3j2nMt4M1IQWFkvjsKhCqJ_h6kqEtcvGdsg/edit"
+                        id="sheet-link"
+                        class="link-action"
+                        target="_blank"
+                        title="Ver hoja de cálculo"
+                      >
+                        <i class="ti ti-external-link"></i>
+                      </a>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div id="estado" class="mensaje-estado" style="display: none;"></div>
-            
-            <div id="tablaResultados">
-              <!-- Los resultados se cargarán aquí -->
-              <table id="results"></table>
+
+              <!-- Filtros compactos en diseño híbrido -->
+              <div class="filters-hybrid">
+                <!-- Fila principal de búsqueda -->
+                <div class="search-row">
+                  <div class="search-group">
+                    <label class="search-label">Hoja:</label>
+                    <select id="sheet" class="search-control"></select>
+                  </div>
+
+                  <div class="search-group">
+                    <label class="search-label">Columna:</label>
+                    <select id="column" class="search-control">
+                      <option value="__all__">Todas las columnas</option>
+                    </select>
+                  </div>
+
+                  <div class="search-group flex-grow">
+                    <label class="search-label">Valor:</label>
+                    <input
+                      type="text"
+                      id="value-input"
+                      class="search-control"
+                      placeholder="Buscar..."
+                    />
+                  </div>
+
+                  <div class="search-group">
+                    <label class="search-label">Tipo:</label>
+                    <select
+                      id="match-select"
+                      class="search-control search-control-sm"
+                    >
+                      <option value="contains">Contiene</option>
+                      <option value="exact">Exacto</option>
+                    </select>
+                  </div>
+
+                  <div class="search-group">
+                    <button id="btnBuscar" class="btn-search-main">
+                      <i class="ti ti-search"></i> Buscar
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Filtros avanzados expandibles -->
+                <div class="advanced-filters">
+                  <div class="advanced-toggle">
+                    <button
+                      type="button"
+                      class="btn-toggle-advanced"
+                      id="toggleAdvancedBtn"
+                    >
+                      <i class="ti ti-filter"></i> Filtros Avanzados
+                      <i class="ti ti-chevron-down toggle-icon"></i>
+                    </button>
+                  </div>
+
+                  <div
+                    class="advanced-content"
+                    id="advancedFilters"
+                    style="display: none"
+                  >
+                    <!-- Filtros de fecha -->
+                    <div class="filter-section">
+                      <label class="section-label">
+                        <i class="ti ti-calendar"></i> Filtro por fechas
+                      </label>
+                      <div class="date-filters">
+                        <div class="date-group">
+                          <label class="date-label">Desde:</label>
+                          <input
+                            type="date"
+                            id="fecha-desde"
+                            class="date-control"
+                          />
+                        </div>
+                        <div class="date-group">
+                          <label class="date-label">Hasta:</label>
+                          <input
+                            type="date"
+                            id="fecha-hasta"
+                            class="date-control"
+                          />
+                        </div>
+                        <div class="date-actions">
+                          <button
+                            id="btnLimpiarFiltroFechas"
+                            class="btn-clear-dates"
+                          >
+                            <i class="ti ti-trash"></i> Limpiar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Filtros adicionales -->
+                    <div class="filter-section">
+                      <label class="section-label">
+                        <i class="ti ti-filter-star"></i> Filtros específicos
+                      </label>
+                      <div class="specific-filters">
+                        <div class="specific-group">
+                          <label class="specific-label">Canal:</label>
+                          <select id="canal" class="specific-control">
+                            <option value="">Todos</option>
+                            <option value="FARMASHOP">Web</option>
+                            <option value="FARMASHOP_APP">App</option>
+                          </select>
+                        </div>
+                        <div class="specific-group">
+                          <label class="specific-label">Comercio:</label>
+                          <select id="comercio" class="specific-control">
+                            <option value="">Todos</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                id="estado"
+                class="mensaje-estado"
+                style="display: none"
+              ></div>
+
+              <div id="results-container">
+                <div id="tablaResultados">
+                  <!-- Los resultados se cargarán aquí -->
+                  <table id="results"></table>
+                </div>
+                <!-- Los controles de paginación se insertarán aquí -->
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </main>
-  </div>
-  
-  <!-- Módulo JS específico del inspector -->
-  <script type="module" src="modulos/inspector/inspector.js"></script>
-  
-  <!-- Script para el toggle de filtros avanzados sin dependencia de Bootstrap -->
-  <script>
-    // Asegurarse de que este script se ejecute después de que todo esté cargado
-    window.addEventListener('load', function() {
-      console.log('Inicializando filtros avanzados...');
-      
-      // Toggle de filtros avanzados
-      const toggleBtn = document.getElementById('toggleAdvancedBtn');
-      const advancedFilters = document.getElementById('advancedFilters');
-      
-      if (toggleBtn && advancedFilters) {
-        console.log('Elementos de filtros encontrados, configurando evento click');
-        
-        toggleBtn.addEventListener('click', function(event) {
-          // Prevenir comportamiento por defecto
-          event.preventDefault();
-          event.stopPropagation();
-          
-          console.log('Click en botón de filtros avanzados');
-          
-          // Verificar el estado actual
-          const isVisible = advancedFilters.style.display === 'block';
-          
-          // Cambiar la visibilidad
-          advancedFilters.style.display = isVisible ? 'none' : 'block';
-          
-          // Rotar el ícono
-          const icon = toggleBtn.querySelector('.toggle-icon');
-          if (icon) {
-            icon.style.transform = isVisible ? '' : 'rotate(180deg)';
-          }
-          
-          console.log('Estado de filtros avanzados:', isVisible ? 'ocultando' : 'mostrando');
-        });
-        
-        console.log('Evento click configurado correctamente');
-      } else {
-        console.error('No se encontraron los elementos necesarios para los filtros avanzados:',
-          { toggleBtn: !!toggleBtn, advancedFilters: !!advancedFilters });
-      }
-    });
-  </script>
-  
-</body>
+      </main>
+    </div>
+
+    <!-- Módulo JS específico del inspector -->
+    <script type="module" src="modulos/inspector/inspector.js"></script>
+
+    <!-- Script para el toggle de filtros avanzados sin dependencia de Bootstrap -->
+    <script>
+      // Asegurarse de que este script se ejecute después de que todo esté cargado
+      window.addEventListener("load", function () {
+        console.log("Inicializando filtros avanzados...");
+
+        // Toggle de filtros avanzados
+        const toggleBtn = document.getElementById("toggleAdvancedBtn");
+        const advancedFilters = document.getElementById("advancedFilters");
+
+        if (toggleBtn && advancedFilters) {
+          console.log(
+            "Elementos de filtros encontrados, configurando evento click"
+          );
+
+          toggleBtn.addEventListener("click", function (event) {
+            // Prevenir comportamiento por defecto
+            event.preventDefault();
+            event.stopPropagation();
+
+            console.log("Click en botón de filtros avanzados");
+
+            // Verificar el estado actual
+            const isVisible = advancedFilters.style.display === "block";
+
+            // Cambiar la visibilidad
+            advancedFilters.style.display = isVisible ? "none" : "block";
+
+            // Rotar el ícono
+            const icon = toggleBtn.querySelector(".toggle-icon");
+            if (icon) {
+              icon.style.transform = isVisible ? "" : "rotate(180deg)";
+            }
+
+            console.log(
+              "Estado de filtros avanzados:",
+              isVisible ? "ocultando" : "mostrando"
+            );
+          });
+
+          console.log("Evento click configurado correctamente");
+        } else {
+          console.error(
+            "No se encontraron los elementos necesarios para los filtros avanzados:",
+            { toggleBtn: !!toggleBtn, advancedFilters: !!advancedFilters }
+          );
+        }
+      });
+    </script>
+  </body>
 </html>
