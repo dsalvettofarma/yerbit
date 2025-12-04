@@ -88,85 +88,113 @@ function renderDataTable(data) {
 
   console.log("✅ Renderizando", data.length, "registros");
 
-  // Renderizar tabla
-  data.forEach((item) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${item.nombre || "-"}</td>
-      <td>${item.documento || "-"}</td>
-      <td>${item.correo || "-"}</td>
-      <td>${item.telefono || "-"}</td>
-      <td>${item.direccion || "-"}</td>
-      <td>${item.tarjetas || "-"}</td>
-      <td>${formatFechaUTC3(item.fecha)}</td>
-      <td>${item.comentarios || "-"}</td>
+  // Usar DocumentFragment para mejorar performance
+  const tableFragment = document.createDocumentFragment();
+  const cardsFragment = document.createDocumentFragment();
+
+  // Renderizar tabla en lotes
+  const batchSize = 50;
+  let tableHTML = "";
+  let cardsHTML = "";
+
+  data.forEach((item, index) => {
+    // Acumular HTML de tabla
+    tableHTML += `
+      <tr>
+        <td>${item.nombre || "-"}</td>
+        <td>${item.documento || "-"}</td>
+        <td>${item.correo || "-"}</td>
+        <td>${item.telefono || "-"}</td>
+        <td>${item.direccion || "-"}</td>
+        <td>${item.tarjetas || "-"}</td>
+        <td>${formatFechaUTC3(item.fecha)}</td>
+        <td>${item.comentarios || "-"}</td>
+      </tr>
     `;
-    tableBody.appendChild(row);
+
+    // Acumular HTML de cards
+    cardsHTML += `
+      <div class="mobile-card">
+        <div class="mobile-card-header">
+          <div class="mobile-card-avatar">${(item.nombre?.[0] || "").toUpperCase()}</div>
+          <div>
+            <div class="mobile-card-name">${item.nombre || "-"}</div>
+            <div class="mobile-card-email">${item.correo || "-"}</div>
+          </div>
+        </div>
+        <div class="mobile-card-row">
+          <span class="mobile-card-label">Documento</span>
+          <span class="mobile-card-value">${item.documento || "-"}</span>
+        </div>
+        ${
+          item.telefono
+            ? `
+          <div class="mobile-card-row">
+            <span class="mobile-card-label">Teléfono</span>
+            <span class="mobile-card-value">${item.telefono}</span>
+          </div>
+        `
+            : ""
+        }
+        ${
+          item.direccion
+            ? `
+          <div class="mobile-card-row">
+            <span class="mobile-card-label">Dirección</span>
+            <span class="mobile-card-value">${item.direccion}</span>
+          </div>
+        `
+            : ""
+        }
+        ${
+          item.tarjetas
+            ? `
+          <div class="mobile-card-row">
+            <span class="mobile-card-label">Tarjetas</span>
+            <span class="mobile-card-value">${item.tarjetas}</span>
+          </div>
+        `
+            : ""
+        }
+        <div class="mobile-card-row">
+          <span class="mobile-card-label">Fecha</span>
+          <span class="mobile-card-value">${formatFechaUTC3(item.fecha)}</span>
+        </div>
+        ${
+          item.comentarios
+            ? `
+          <div class="mobile-card-row">
+            <span class="mobile-card-label">Comentarios</span>
+            <span class="mobile-card-value">${item.comentarios}</span>
+          </div>
+        `
+            : ""
+        }
+      </div>
+    `;
+
+    // Insertar en lotes para mantener la UI responsive
+    if ((index + 1) % batchSize === 0 || index === data.length - 1) {
+      const tempTable = document.createElement("tbody");
+      tempTable.innerHTML = tableHTML;
+      while (tempTable.firstChild) {
+        tableFragment.appendChild(tempTable.firstChild);
+      }
+
+      const tempCards = document.createElement("div");
+      tempCards.innerHTML = cardsHTML;
+      while (tempCards.firstChild) {
+        cardsFragment.appendChild(tempCards.firstChild);
+      }
+
+      tableHTML = "";
+      cardsHTML = "";
+    }
   });
 
-  // Renderizar cards mobile
-  data.forEach((item) => {
-    const card = document.createElement("div");
-    card.className = "mobile-card";
-    card.innerHTML = `
-      <div class="mobile-card-header">
-        <div class="mobile-card-avatar">${(item.nombre?.[0] || "").toUpperCase()}</div>
-        <div>
-          <div class="mobile-card-name">${item.nombre || "-"}</div>
-          <div class="mobile-card-email">${item.correo || "-"}</div>
-        </div>
-      </div>
-      <div class="mobile-card-row">
-        <span class="mobile-card-label">Documento</span>
-        <span class="mobile-card-value">${item.documento || "-"}</span>
-      </div>
-      ${
-        item.telefono
-          ? `
-      <div class="mobile-card-row">
-        <span class="mobile-card-label">Teléfono</span>
-        <span class="mobile-card-value">${item.telefono}</span>
-      </div>
-      `
-          : ""
-      }
-      ${
-        item.direccion
-          ? `
-      <div class="mobile-card-row">
-        <span class="mobile-card-label">Dirección</span>
-        <span class="mobile-card-value">${item.direccion}</span>
-      </div>
-      `
-          : ""
-      }
-      ${
-        item.tarjetas
-          ? `
-      <div class="mobile-card-row">
-        <span class="mobile-card-label">Tarjetas</span>
-        <span class="mobile-card-value">${item.tarjetas}</span>
-      </div>
-      `
-          : ""
-      }
-      <div class="mobile-card-row">
-        <span class="mobile-card-label">Fecha</span>
-        <span class="mobile-card-value">${formatFechaUTC3(item.fecha)}</span>
-      </div>
-      ${
-        item.comentarios
-          ? `
-      <div class="mobile-card-row">
-        <span class="mobile-card-label">Comentarios</span>
-        <span class="mobile-card-value">${item.comentarios}</span>
-      </div>
-      `
-          : ""
-      }
-    `;
-    mobileCards.appendChild(card);
-  });
+  // Insertar todo de una vez
+  tableBody.appendChild(tableFragment);
+  mobileCards.appendChild(cardsFragment);
 }
 
 function filtrarClientes(data, filtro) {
