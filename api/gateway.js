@@ -432,6 +432,10 @@ async function handleInspector(action, params) {
       return { success: true, message: "pong" };
     case "getSheets":
       return await getSheets(params.spreadsheetId);
+    case "getMeta":
+      return await getMeta(params);
+    case "getRange":
+      return await getRange(params);
     case "search":
       return await searchInSheet(params);
     case "getData":
@@ -681,6 +685,153 @@ async function getSheetData(params) {
   } catch (error) {
     console.error("Error obteniendo datos de hoja:", error);
     throw new Error("Error obteniendo datos de hoja");
+  }
+}
+
+// Obtener metadatos: headers (fila 1) y totalRows (sin contar header)
+async function getMeta(params) {
+  const { sheet, spreadsheetId = SPREADSHEET_IDS.INSPECTOR } = params || {};
+  if (!sheet) {
+    console.error("getMeta: falta parámetro 'sheet'");
+    return { success: false, message: "Parámetro 'sheet' requerido" };
+  }
+
+  try {
+    // Obtener metadata de la hoja para conocer columnas y filas
+    const metaResponse = await withRetry(() =>
+      sheets.spreadsheets.get({ spreadsheetId })
+    );
+
+    if (
+      !metaResponse ||
+      !metaResponse.data ||
+      !Array.isArray(metaResponse.data.sheets)
+    ) {
+      console.error(
+        "getMeta: respuesta inválida de spreadsheets.get",
+        metaResponse && metaResponse.data
+      );
+      return { success: false, message: "Respuesta inválida de Google Sheets" };
+    }
+
+    const sheetInfo = metaResponse.data.sheets.find(
+      (s) => s.properties.title === sheet
+    );
+    if (!sheetInfo) {
+      console.error(
+        `getMeta: Hoja '${sheet}' no encontrada en spreadsheet ${spreadsheetId}`
+      );
+      return { success: false, message: `Hoja '${sheet}' no encontrada` };
+    }
+
+    const lastColIndex = sheetInfo.properties.gridProperties.columnCount || 26;
+    const rowCount = sheetInfo.properties.gridProperties.rowCount || 0;
+
+    // Convertir índice de columna a letra (A, B, ..., Z, AA, AB...)
+    function colIdxToLetter(idx) {
+      let letter = "";
+      while (idx > 0) {
+        const rem = (idx - 1) % 26;
+        letter = String.fromCharCode(65 + rem) + letter;
+        idx = Math.floor((idx - 1) / 26);
+      }
+      return letter;
+    }
+
+    const lastColLetter = colIdxToLetter(lastColIndex);
+
+    // Obtener solo la fila de headers
+    const headerRange = `${sheet}!A1:${lastColLetter}1`;
+    const headerResp = await withRetry(() =>
+      sheets.spreadsheets.values.get({ spreadsheetId, range: headerRange })
+    );
+
+    const headers =
+      (headerResp &&
+        headerResp.data &&
+        headerResp.data.values &&
+        headerResp.data.values[0]) ||
+      [];
+
+    // totalRows: número de filas de datos (sin contar header)
+    const totalRows = Math.max(0, rowCount - 1);
+
+    return { success: true, headers, totalRows };
+  } catch (error) {
+    console.error("getMeta - Error obteniendo metadata:", error);
+    return {
+      success: false,
+      message: "Error obteniendo metadata de la hoja",
+      detail: error && error.message,
+    };
+  }
+}
+
+// Obtener rango de filas: start..end (ambos inclusive). Devuelve rows como arrays.
+async function getRange(params) {
+  const {
+    sheet,
+    start,
+    end,
+    spreadsheetId = SPREADSHEET_IDS.INSPECTOR,
+  } = params || {};
+  if (!sheet) {
+    console.error("getRange: falta parámetro 'sheet'");
+    return { success: false, message: "Parámetro 'sheet' requerido" };
+  }
+  if (typeof start === "undefined" || typeof end === "undefined") {
+    console.error("getRange: faltan 'start' o 'end'");
+    return { success: false, message: "Parámetros 'start' y 'end' requeridos" };
+  }
+
+  try {
+    // Necesitamos conocer la última columna para construir el rango
+    const metaResponse = await withRetry(() =>
+      sheets.spreadsheets.get({ spreadsheetId })
+    );
+
+    const sheetInfo = metaResponse.data.sheets.find(
+      (s) => s.properties.title === sheet
+    );
+    if (!sheetInfo) {
+      console.error(
+        `getRange: Hoja '${sheet}' no encontrada en spreadsheet ${spreadsheetId}`
+      );
+      return { success: false, message: `Hoja '${sheet}' no encontrada` };
+    }
+
+    const lastColIndex = sheetInfo.properties.gridProperties.columnCount || 26;
+
+    function colIdxToLetter(idx) {
+      let letter = "";
+      while (idx > 0) {
+        const rem = (idx - 1) % 26;
+        letter = String.fromCharCode(65 + rem) + letter;
+        idx = Math.floor((idx - 1) / 26);
+      }
+      return letter;
+    }
+
+    const lastColLetter = colIdxToLetter(lastColIndex);
+    const range = `${sheet}!A${start}:${lastColLetter}${end}`;
+
+    console.log(
+      `getRange: solicitando rango ${range} en spreadsheet ${spreadsheetId}`
+    );
+
+    const resp = await withRetry(() =>
+      sheets.spreadsheets.values.get({ spreadsheetId, range })
+    );
+
+    const rows = resp && resp.data && resp.data.values ? resp.data.values : [];
+    return { success: true, rows };
+  } catch (error) {
+    console.error("getRange - Error obteniendo rango:", error);
+    return {
+      success: false,
+      message: "Error obteniendo rango de la hoja",
+      detail: error && error.message,
+    };
   }
 }
 
