@@ -442,23 +442,65 @@ async function handleInspector(action, params) {
 }
 
 async function getSheets(spreadsheetId = SPREADSHEET_IDS.INSPECTOR) {
+  // Handler robusto para obtener nombres de hojas
+  if (!spreadsheetId) {
+    console.error("getSheets: spreadsheetId undefined or empty");
+    return { success: false, message: "Spreadsheet ID no definido" };
+  }
+
   try {
+    console.log(
+      `getSheets: solicitando metadata del spreadsheetId=${spreadsheetId}`
+    );
     const response = await withRetry(() =>
       sheets.spreadsheets.get({ spreadsheetId })
     );
 
+    if (!response || !response.data || !Array.isArray(response.data.sheets)) {
+      console.error(
+        "getSheets: respuesta inesperada de Google Sheets:",
+        response && response.data
+      );
+      return { success: false, message: "Respuesta inválida de Google Sheets" };
+    }
+
     // Extraer solo los nombres de las hojas para mantener compatibilidad con el frontend
     const sheetNames = response.data.sheets.map(
-      (sheet) => sheet.properties.title
+      (sheet) => sheet.properties.title || ""
     );
 
-    console.log(`📋 Hojas obtenidas: ${sheetNames.join(", ")}`);
+    console.log(
+      `📋 Hojas obtenidas (${sheetNames.length}): ${sheetNames.join(", ")}`
+    );
 
     // Devolver en el formato que espera el frontend
-    return { sheets: sheetNames };
+    return { success: true, sheets: sheetNames };
   } catch (error) {
-    console.error("❌ Error obteniendo hojas:", error);
-    throw new Error("Error obteniendo hojas del spreadsheet");
+    // Mejor logging y devolver objeto de error en lugar de lanzar excepción genérica
+    console.error(
+      "❌ getSheets - Error obteniendo hojas para spreadsheetId=",
+      spreadsheetId,
+      error
+    );
+
+    // Distinción de errores comunes
+    const msg = error && error.message ? error.message : String(error);
+    // Si es un error de permisos o credenciales, incluir pista útil
+    if (
+      msg.includes("permission") ||
+      msg.toLowerCase().includes("unauthorized") ||
+      msg.toLowerCase().includes("forbidden")
+    ) {
+      console.error(
+        "getSheets: posible problema de permisos/credenciales. Verificar GOOGLE_CLIENT_EMAIL y que la cuenta tenga acceso al spreadsheet."
+      );
+    }
+
+    return {
+      success: false,
+      message: "Error obteniendo hojas del spreadsheet",
+      detail: msg,
+    };
   }
 }
 
