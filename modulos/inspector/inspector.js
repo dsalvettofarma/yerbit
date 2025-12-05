@@ -51,6 +51,7 @@ let selectHoja,
   selectCanalVenta,
   selectComercio;
 let activeEventListeners = [];
+let debounceTimer = null;
 // --- Helper para añadir y rastrear Event Listeners ---
 function _addManagedEventListener(element, type, handler, options = false) {
   if (element) {
