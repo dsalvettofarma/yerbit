@@ -62,4 +62,28 @@ const sheets = google.sheets({
   },
 });
 
-export { sheets, auth };
+// Helper: retry manual para invocar funciones async que pueden fallar
+async function withRetry(fn, retries = 3, baseDelayMs = 300) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      console.error(
+        `withRetry: intento ${attempt}/${retries} falló:`,
+        err && (err.message || err)
+      );
+
+      if (attempt === retries) break;
+
+      const delay = baseDelayMs * attempt;
+      await new Promise((res) => setTimeout(res, delay));
+    }
+  }
+
+  throw lastError;
+}
+
+export { sheets, auth, withRetry };
