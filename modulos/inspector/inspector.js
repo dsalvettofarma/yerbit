@@ -47,8 +47,10 @@ let selectHoja,
   precargaTimerId,
   precargaDelayId,
   overlaySpinnerElement,
-  overlayTextElement;
-
+  overlayTextElement,
+  selectCanalVenta,
+  selectComercio;
+let activeEventListeners = [];
 // --- Helper para añadir y rastrear Event Listeners ---
 function _addManagedEventListener(element, type, handler, options = false) {
   if (element) {
@@ -460,7 +462,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("INSPECTOR: Agregando event listeners...");
     _addManagedEventListener(btnRefrescarHojas, "click", () => {
       console.log("INSPECTOR: Click en btnRefrescarHojas");
-      _precargar(true);
+      // Refrescar solo headers/hojas (evitar precarga masiva accidental)
+      _precargarHeaders(true);
     });
     _addManagedEventListener(btnPrecargar, "click", () => {
       console.log("INSPECTOR: Click en btnPrecargar");
@@ -498,12 +501,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           tablaResultados.tBodies[0].innerHTML = "";
       });
     }
-    // Precarga automática con delay: evita llamadas inmediatas a Sheets al cargar la UI
+    // Precarga automática ligera: wake-up del Gateway y carga de headers (no datos pesados)
     _updateStatus(
-      'Selecciona una hoja y haz clic en "Precargar hoja". Iniciando precarga automática en 2s...',
+      "Selecciona una hoja. Precarga automática ligera en breve...",
       false
     );
-    console.log("INSPECTOR: Precarga automática programada en 2s...");
+    console.log(
+      "INSPECTOR: Precarga automática (ligera) programada en 800ms..."
+    );
     // Limpiar cualquier timeout previo
     if (typeof precargaDelayId !== "undefined" && precargaDelayId) {
       clearTimeout(precargaDelayId);
@@ -511,43 +516,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     precargaDelayId = setTimeout(async () => {
       try {
-        console.log(
-          "INSPECTOR: Ejecutando health-check antes de precargar (auto-delayed)"
-        );
-        // Health-check ligero: no toca Google Sheets, devuelve {success:true} si gateway está vivo
-        const health = await _apiRequest("ping");
-        if (!health || !health.success) {
-          console.warn(
-            "INSPECTOR: Health-check falló o devolvió falso:",
-            health
-          );
-          _updateStatus(
-            '❌ El API Gateway no está disponible. Haz clic en "Precargar" para reintentar.',
-            true
-          );
-          return;
-        }
+        console.log("INSPECTOR: health-check (auto precarga ligera)...");
+        await _apiRequest("ping");
 
-        console.log("INSPECTOR: Health-check OK, ejecutando _precargar(false)");
-        await _precargar(false);
+        console.log("INSPECTOR: precarga de headers (auto)...");
+        await _precargarHeaders();
+
+        _updateStatus(
+          "Headers cargados. Seleccioná una hoja y tocá 'Precargar'.",
+          false
+        );
       } catch (err) {
-        console.warn("INSPECTOR: Precarga automática falló:", err);
-        // Mensaje más claro si el backend responde pero con error
-        if (err && err.message) {
-          _updateStatus(
-            "❌ Error al conectar con el API Gateway: " + err.message,
-            true
-          );
-        } else {
-          _updateStatus(
-            '❌ Falló la precarga automática. Haz clic en "Precargar" para reintentar.',
-            true
-          );
-        }
+        console.warn("INSPECTOR: Precarga automática ligera falló:", err);
+        _updateStatus("❌ No se pudo inicializar. Probá manualmente.", true);
       } finally {
         precargaDelayId = null;
       }
-    }, 2000);
+    }, 800);
   } catch (err) {
     console.error("INSPECTOR: Error en inicialización:", err);
     if (estadoElement)
@@ -567,234 +552,136 @@ function _cacheExpirada() {
   return expirada;
 }
 
-async function _precargar(forzarRefrescoDeHojas = false) {
-  // Los elementos del DOM como sheetSelectEl, columnSelectEl, estadoEl, overlayTextEl
-  // ahora son las variables del módulo: selectHoja, selectColumna, estadoElement, overlayTextElement
+// Precarga ligera: obtener lista de hojas y poblar el selector de hojas
+async function _precargarHeaders(forzar = false) {
+  _showOverlaySpinner();
+  try {
+    if (estadoElement)
+      estadoElement.innerText = "Refrescando lista de hojas...";
+    if (overlayTextElement)
+      overlayTextElement.textContent = "Refrescando lista de hojas...";
 
-  _showOverlaySpinner(); // Muestra el spinner general
+    const dataHojas = await _apiRequest("getSheets");
+    console.log("INSPECTOR: Respuesta de getSheets:", dataHojas);
 
-  const msgCargandoBase = "⏳ Cargando…";
-  let startTimestamp = Date.now();
-
-  // Limpiar timer anterior si existiera
-  if (precargaTimerId) {
-    clearInterval(precargaTimerId);
-    precargaTimerId = null;
-  }
-
-  function actualizarMensajePrecarga() {
-    const elapsedSeconds = ((Date.now() - startTimestamp) / 1000).toFixed(1);
-    const currentMsg = `${msgCargandoBase} ${elapsedSeconds}s`;
-
-    const spinnerEstaVisible = overlaySpinnerElement?.style.display !== "none";
-
-    if (estadoElement && document.body.contains(estadoElement)) {
-      estadoElement.innerText = currentMsg;
-      estadoElement.className = "mensaje-estado info-message";
-      estadoElement.style.display = "block";
-    }
-    // Solo actualizar el texto del overlay si el overlay (spinner) está visible
-    if (
-      overlayTextElement &&
-      spinnerEstaVisible &&
-      document.body.contains(overlayTextElement)
-    ) {
-      overlayTextElement.textContent = currentMsg;
+    if (!selectHoja) {
+      console.error(
+        "INSPECTOR: selectHoja no encontrado al precargar headers."
+      );
+      _updateStatus("Error: selector de hojas no disponible.", true);
+      return;
     }
 
-    // Condición de limpieza del timer si los elementos desaparecen (aunque onLeave debería ser el principal)
-    if (
-      (!estadoElement || !document.body.contains(estadoElement)) &&
-      (!overlayTextElement ||
-        !spinnerEstaVisible ||
-        !document.body.contains(overlayTextElement))
-    ) {
-      if (precargaTimerId) {
-        clearInterval(precargaTimerId);
-        precargaTimerId = null;
-        console.log(
-          "INSPECTOR: Timer de precarga detenido porque los elementos de UI desaparecieron."
-        );
+    selectHoja.innerHTML =
+      '<option value="">-- Selecciona una hoja --</option>';
+    if (dataHojas && Array.isArray(dataHojas.sheets)) {
+      dataHojas.sheets.forEach((nombreHoja) => {
+        const option = document.createElement("option");
+        option.value = nombreHoja;
+        option.textContent = nombreHoja;
+        selectHoja.appendChild(option);
+      });
+      if (selectHoja.options.length > 1 && !selectHoja.value) {
+        selectHoja.selectedIndex = 1;
       }
+      _updateStatus("Hojas cargadas. Seleccioná una hoja.", false);
+    } else {
+      console.error(
+        "INSPECTOR: getSheets devolvió formato inesperado:",
+        dataHojas
+      );
+      _updateStatus("No se recibieron hojas válidas del servidor.", true);
     }
+  } catch (err) {
+    console.error("INSPECTOR: Error en _precargarHeaders:", err);
+    _updateStatus(
+      "Error al cargar lista de hojas: " + (err.message || err),
+      true
+    );
+  } finally {
+    _hideOverlaySpinner();
+  }
+}
+
+// Precarga completa en chunks para evitar timeouts (invocada manualmente)
+async function _precargar(forzarRefrescoDeHojas = false) {
+  const hoja = selectHoja ? selectHoja.value : null;
+  if (!hoja) {
+    _updateStatus("Seleccioná una hoja para precargar.", true);
+    return;
   }
 
-  actualizarMensajePrecarga(); // Mensaje inicial
-  precargaTimerId = setInterval(actualizarMensajePrecarga, 200);
+  _showOverlaySpinner();
+  _updateStatus("Precargando datos…", false);
 
   try {
-    // Ya no validamos la sesión aquí, ya que creamos una sesión temporal en _apiRequest
-    // Si la validación de sesión es esencial, se hará en el backend
-    // 1. Cargar lista de hojas (si es necesario)
-    let justLoadedSheets = false;
+    // Obtener metadatos: headers y totalRows (sin contar header)
+    const meta = await _apiRequest("getMeta", { sheet: hoja });
     if (
-      forzarRefrescoDeHojas ||
-      (selectHoja && selectHoja.options.length <= 1)
+      !meta ||
+      typeof meta.totalRows !== "number" ||
+      !Array.isArray(meta.headers)
     ) {
-      if (estadoElement)
-        estadoElement.innerText = "Refrescando lista de hojas..."; // Mensaje sin timer
+      throw new Error("Respuesta inválida de getMeta");
+    }
+
+    const totalRows = meta.totalRows;
+    if (totalRows === 0) {
+      window.cacheData = {
+        sheetName: hoja,
+        headers: meta.headers,
+        headersOrdenados: _ordenarHeaders(meta.headers, hoja),
+        rows: [],
+        ts: Date.now(),
+      };
+      _updateStatus(`Hoja '${hoja}' sin filas. Listo.`, false);
+      return;
+    }
+
+    const chunkSize = 3000;
+    const chunks = Math.ceil(totalRows / chunkSize);
+    let allRows = [];
+
+    for (let i = 0; i < chunks; i++) {
+      const start = i * chunkSize + 1; // start is 1-based data-row index (no header)
+      const end = Math.min((i + 1) * chunkSize, totalRows);
+      console.log(`INSPECTOR: Fetch chunk ${start}-${end} for sheet ${hoja}`);
       if (overlayTextElement)
-        overlayTextElement.textContent = "Refrescando lista de hojas...";
+        overlayTextElement.textContent = `Cargando filas ${start}-${end} de ${totalRows}...`;
 
-      const dataHojas = await _apiRequest("getSheets");
-      console.log("INSPECTOR: Respuesta de getSheets:", dataHojas);
+      const data = await _apiRequest("getRange", {
+        sheet: hoja,
+        start,
+        end,
+      });
 
-      if (selectHoja) {
-        console.log("INSPECTOR: selectHoja encontrado, poblando opciones");
-        selectHoja.innerHTML =
-          '<option value="">-- Selecciona una hoja --</option>';
-        if (dataHojas && dataHojas.sheets && Array.isArray(dataHojas.sheets)) {
-          console.log(
-            "INSPECTOR: Agregando",
-            dataHojas.sheets.length,
-            "hojas al dropdown"
-          );
-          dataHojas.sheets.forEach((nombreHoja) => {
-            const option = document.createElement("option");
-            option.value = nombreHoja;
-            option.textContent = nombreHoja;
-            selectHoja.appendChild(option);
-            console.log("INSPECTOR: Agregada hoja:", nombreHoja);
-          });
-          // Seleccionar la primera hoja real (más a la izquierda)
-          if (selectHoja.options.length > 1) {
-            selectHoja.selectedIndex = 1; // El 0 es "-- Selecciona --", el 1 es la primera hoja real
-            console.log(
-              "INSPECTOR: Seleccionada hoja por defecto:",
-              selectHoja.value
-            );
-          }
-          justLoadedSheets = true; // Flag para saber que esto fue la primera carga
-        } else {
-          console.error("INSPECTOR: Formato de respuesta inválido:", dataHojas);
-          throw new Error(
-            "No se recibieron nombres de hojas válidos del servidor."
-          );
-        }
-      } else {
-        console.error("INSPECTOR: selectHoja es null!");
+      if (!data || !Array.isArray(data.rows)) {
+        throw new Error(`Respuesta inválida de getRange para ${start}-${end}`);
       }
-    } // Cierre del if (forzarRefrescoDeHojas...)
 
-    const hojaSeleccionada = selectHoja ? selectHoja.value : null;
-    if (!hojaSeleccionada) {
-      // Si no hay hoja seleccionada, no continuar con la carga de datos.
-      // El timer seguirá corriendo hasta que se oculte el spinner o se salga de la sección.
-      // Podríamos pararlo aquí si este es un estado final de "error de selección".
-      _updateStatus("Por favor, selecciona una hoja para precargar.", false);
-      // No llamar a _hideOverlaySpinner() aquí para que el usuario vea el mensaje y el timer si se desea
-      // Pero si este es un punto de parada, es mejor limpiar:
-      if (precargaTimerId) {
-        clearInterval(precargaTimerId);
-        precargaTimerId = null;
-      }
-      _hideOverlaySpinner(); // Ocultar si no se va a continuar
-      return;
+      allRows = allRows.concat(data.rows);
     }
 
-    // 2. Verificar caché
-    if (
-      window.cacheData &&
-      window.cacheData.sheetName === hojaSeleccionada &&
-      !_cacheExpirada() &&
-      !forzarRefrescoDeHojas
-    ) {
-      clearInterval(precargaTimerId); // Detener timer ya que usamos caché
-      precargaTimerId = null;
-      let duration = (Date.now() - startTimestamp) / 1000; // Puede ser muy corto si no hubo refresco de hojas
-      console.log(
-        `INSPECTOR: Usando datos cacheados para '${hojaSeleccionada}'.`
-      );
-      _updateStatus(
-        `Datos para '${hojaSeleccionada}' ya están en caché (${window.cacheData.rows.length} filas). Listo. (Verificado en ${duration.toFixed(2)}s)`
-      );
-      if (
-        selectColumna &&
-        selectColumna.options.length <= 1 &&
-        window.cacheData.headersOrdenados
-      ) {
-        selectColumna.innerHTML =
-          '<option value="__all__">Buscar en todo</option>';
-        window.cacheData.headersOrdenados.forEach((header) => {
-          const option = document.createElement("option");
-          option.value = header;
-          option.textContent = _capitalize(header);
-          selectColumna.appendChild(option);
-        });
-      }
-      _hideOverlaySpinner(); // Oculta el spinner y limpia el timer si aún estaba activo
-      return;
-    }
-
-    // 3. Precargar datos de la hoja
-    // El mensaje de carga con timer ya está corriendo
-    if (estadoElement)
-      estadoElement.innerText = `${msgCargandoBase} (Hoja: ${hojaSeleccionada})...`;
-    if (overlayTextElement)
-      overlayTextElement.textContent = `${msgCargandoBase} (Hoja: ${hojaSeleccionada})...`;
-
-    // Agregar mensaje de progreso
-    console.log(
-      `🔄 INSPECTOR: Iniciando carga de datos para: ${hojaSeleccionada}`
-    );
-    if (overlayTextElement) {
-      overlayTextElement.textContent = `⏳ Cargando ${hojaSeleccionada}... Esto puede tomar hasta 1 minuto para hojas grandes.`;
-    }
-
-    const dataSheet = await _apiRequest("search", {
-      sheet: hojaSeleccionada,
-      column: "todos",
-      value: "__all__",
-      matchType: "contains",
-    });
-
-    clearInterval(precargaTimerId); // Detener el timer después de la carga
-    precargaTimerId = null;
-
-    console.log(
-      `✅ INSPECTOR: Datos cargados exitosamente para: ${hojaSeleccionada}`
-    );
-
-    if (
-      !dataSheet ||
-      !Array.isArray(dataSheet.results) ||
-      !Array.isArray(dataSheet.headers)
-    ) {
-      throw new Error(
-        "Respuesta del servidor para precarga no tiene formato esperado (results y headers)."
-      );
-    }
-    // Usar SIEMPRE los headers de la búsqueda como fuente principal
-    const headersOriginales = dataSheet.headers;
-    const filas = dataSheet.results;
-    // Si hay más columnas en alguna fila que en los headers, rellenar headers
-    let maxCols = headersOriginales.length;
-    filas.forEach((r) => {
+    const headers = meta.headers.slice();
+    // Si algunas filas tienen más columnas que headers, completar nombres
+    let maxCols = headers.length;
+    allRows.forEach((r) => {
       if (r.length > maxCols) maxCols = r.length;
     });
-    let headersCompletos = headersOriginales.slice();
-    if (headersCompletos.length < maxCols) {
-      for (let i = headersCompletos.length; i < maxCols; i++) {
-        headersCompletos[i] = `Columna ${i + 1}`;
-      }
+    const headersCompletos = headers.slice();
+    for (let i = headersCompletos.length; i < maxCols; i++) {
+      headersCompletos[i] = `Columna ${i + 1}`;
     }
-    const headersOrdenados = _ordenarHeaders(
-      headersCompletos,
-      hojaSeleccionada
-    );
+
+    const headersOrdenados = _ordenarHeaders(headersCompletos, hoja);
 
     window.cacheData = {
-      sheetName: hojaSeleccionada,
+      sheetName: hoja,
       headers: headersCompletos,
       headersOrdenados: headersOrdenados,
-      rows: filas,
+      rows: allRows,
       ts: Date.now(),
     };
-
-    let durationCargaDatos = (Date.now() - startTimestamp) / 1000;
-    console.log(
-      `INSPECTOR: Datos de '${hojaSeleccionada}' (${filas.length} filas) cacheados. Duración carga de datos: ${durationCargaDatos.toFixed(2)}s`
-    );
 
     if (selectColumna) {
       selectColumna.innerHTML =
@@ -806,31 +693,13 @@ async function _precargar(forzarRefrescoDeHojas = false) {
         selectColumna.appendChild(option);
       });
     }
-    if (tablaResultados && tablaResultados.tBodies[0])
-      tablaResultados.tBodies[0].innerHTML =
-        '<tr><td colspan="100%" class="text-center">Datos precargados. Realiza una búsqueda.</td></tr>';
 
-    _updateStatus(
-      `Hoja precargada - ${filas.length} filas en ${durationCargaDatos.toFixed(2)}s. Listo ✅`
-    );
-  } catch (error) {
-    if (precargaTimerId) {
-      clearInterval(precargaTimerId);
-      precargaTimerId = null;
-    }
-    let durationError = (Date.now() - startTimestamp) / 1000;
-    console.error(
-      `INSPECTOR: Error al precargar (Duración hasta error: ${durationError.toFixed(2)}s):`,
-      error
-    );
-    _updateStatus(`Error al precargar: ${error.message}`, true);
+    _updateStatus(`Precarga completa: ${allRows.length} filas.`, false);
+  } catch (err) {
+    console.error("INSPECTOR: Error precargando en chunks:", err);
+    _updateStatus("Error precargando: " + (err.message || err), true);
     window.cacheData = null;
   } finally {
-    // Asegurar que el timer se detenga y el spinner se oculte
-    if (precargaTimerId) {
-      clearInterval(precargaTimerId);
-      precargaTimerId = null;
-    }
     _hideOverlaySpinner();
   }
 } // Cierre de la función _precargar
