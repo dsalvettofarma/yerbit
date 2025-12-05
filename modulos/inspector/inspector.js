@@ -51,6 +51,8 @@ let selectHoja,
   selectCanalVenta,
   selectComercio;
 let activeEventListeners = [];
+// Contenedores/temporizadores utilizados dinamicamente
+let paginacionContainer;
 let debounceTimer = null;
 // --- Helper para añadir y rastrear Event Listeners ---
 function _addManagedEventListener(element, type, handler, options = false) {
